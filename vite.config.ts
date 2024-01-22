@@ -6,4 +6,5 @@ import bundlesize from "vite-plugin-bundlesize"
 export default defineConfig({
   plugins: [react(), bundlesize({ limits: [{ name: "**/*", limit: "500 kB" }], stats: "all" })],
   build: { sourcemap: "hidden" },
+  base: "",
 })
