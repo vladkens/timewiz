@@ -83,8 +83,9 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
             isHome && "border-orange-500",
           )}
           onClick={() => setTzHome(place.tzName)}
+          disabled={isHome}
         >
-          {isHome ? "><" : withSign((place.tzOffset - refPlace.tzOffset) / 60)}
+          {isHome ? "🏠" : withSign((place.tzOffset - refPlace.tzOffset) / 60)}
         </button>
 
         <TzInfo place={place} />

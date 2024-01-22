@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gray-100;
+/* 
+- https://ui.shadcn.com/themes
+- https://daisyui.com/docs/colors/
+- https://github.com/saadeghi/daisyui/blob/master/src/theming/themes.js
+*/
+
+@layer base {
+  :root {
+    --base-100: #f1f1f1;
+    --base-200: #dbdbdb;
+    --base-300: #c6c6c6;
+    --base-txt: #141414;
+  }
+
+  .dark {
+    --base-100: #0a0a0b;
+    --base-200: #171718;
+    --base-300: #2f2d30;
+    --base-txt: #dca54d;
+  }
+}
+
+@layer base {
+  * {
+    /* @apply border-border; */
+  }
+
+  body {
+    @apply bg-base text-base-txt;
+  }
 }

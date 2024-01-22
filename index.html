@@ -13,5 +13,9 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      const isDark = localStorage.getItem("dark") === "true"
+      document.body.classList.toggle("dark", isDark)
+    </script>
   </body>
 </html>
