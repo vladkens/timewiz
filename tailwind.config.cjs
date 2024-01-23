@@ -5,7 +5,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: { DEFAULT: "var(--base-100)", txt: "var(--base-txt)" },
+        body: {
+          DEFAULT: "rgb(from var(--body) r g b / <alpha-value>)",
+          content: "rgb(from var(--body-content) r g b / <alpha-value>)",
+        },
+        card: {
+          DEFAULT: "rgb(from var(--card) r g b / <alpha-value>)",
+          content: "rgb(from var(--card-content) r g b / <alpha-value>)",
+        },
       },
     },
   },

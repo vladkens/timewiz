@@ -6,30 +6,44 @@
 - https://ui.shadcn.com/themes
 - https://daisyui.com/docs/colors/
 - https://github.com/saadeghi/daisyui/blob/master/src/theming/themes.js
+- https://www.radix-ui.com/colors
 */
 
 @layer base {
   :root {
-    --base-100: #f1f1f1;
-    --base-200: #dbdbdb;
-    --base-300: #c6c6c6;
-    --base-txt: #141414;
+    --body: theme(colors.zinc.200);
+    --body-content: theme(colors.zinc.900);
+    --card: theme(colors.white);
+    --card-content: theme(colors.zinc.900);
   }
 
   .dark {
-    --base-100: #0a0a0b;
-    --base-200: #171718;
-    --base-300: #2f2d30;
-    --base-txt: #dca54d;
+    --body: theme(colors.black);
+    --body-content: theme(colors.stone.300);
+    --card: theme(colors.stone.900);
+    --card-content: theme(colors.stone.300);
   }
 }
 
 @layer base {
   * {
-    /* @apply border-border; */
+    @apply border-white dark:border-stone-700;
   }
 
   body {
-    @apply bg-base text-base-txt;
+    @apply bg-body text-body-content;
+  }
+}
+
+.animate-tick {
+  animation: tick 2s linear infinite;
+}
+
+@keyframes tick {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
   }
 }

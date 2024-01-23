@@ -1,11 +1,63 @@
-import { useSetAtom } from "jotai"
-import { FC, useEffect, useReducer } from "react"
-import { twJoin } from "tailwind-merge"
-import { TzHomeState, TzListState, useGetHomePlace } from "../state"
+import clsx from "clsx"
+import { useAtomValue, useSetAtom } from "jotai"
+import { FC, useCallback, useEffect, useState } from "react"
+import { TzHomeState, TzListState, TzModeState, useGetHomePlace } from "../state"
 import { Place } from "../utils/places"
 
-const withSign = (x: number) => {
-  return x > 0 ? `+${x}` : `${x}`
+const getDayLabel: FC<{ date: Date }> = ({ date }) => {
+  const tzMode = useAtomValue(TzModeState)
+
+  const [h, m] = [date.getHours(), date.getMinutes()]
+  const cls = "flex flex-col gap-0.5 uppercase leading-none"
+
+  if (h === 0) {
+    const m = new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
+    const d = date.getDate()
+    return (
+      <div className={cls}>
+        <div className="text-[8px]">{m}</div>
+        <div className="text-[12px]">{d}</div>
+      </div>
+    )
+  }
+
+  const hh = h.toString().padStart(2, "0")
+  const mm = m.toString().padStart(2, "0")
+
+  if (tzMode === "12") {
+    return (
+      <div className={cls}>
+        <div className="text-[12px]">
+          {m === 0 ? (
+            h
+          ) : (
+            <div className="flex flex-row items-end">
+              <div className="">{hh}</div>
+              <div className="text-[8px]">{mm}</div>
+            </div>
+          )}
+        </div>
+        <div className="text-[8px] lowercase">{h < 12 ? "am" : "pm"}</div>
+      </div>
+    )
+  }
+
+  if (tzMode === "24") {
+    if (m !== 0) {
+      return (
+        <div className={cls}>
+          <div className="text-[12px]">{hh}</div>
+          <div className="text-[8px]">{mm}</div>
+        </div>
+      )
+    }
+
+    // return hh
+    return h.toString()
+  }
+
+  console.warn("Unknown tzMode", tzMode)
+  return null
 }
 
 const getTimeline = (refPlace: Place, place: Place) => {
@@ -16,40 +68,117 @@ const getTimeline = (refPlace: Place, place: Place) => {
   for (let i = 0; i < 24; ++i) {
     const ct = new Date(ts + i * 60 * 60 * 1000)
     const hh = ct.getHours()
-    items.push({ hour: hh.toString(), isDayStart: hh === 0, isDayEnd: hh === 23 })
+
+    const isG = hh >= 9 && hh <= 18
+    const isY = [7, 8, 19, 20, 21].includes(hh)
+    const isV = !isG && !isY
+
+    items.push({
+      label: getDayLabel({ date: ct }),
+      isDayStart: hh === 0,
+      isDayEnd: hh === 23,
+      className: clsx(
+        isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
+        isY && "bg-yellow-50 border-yellow-500 dark:bg-yellow-600/40 dark:border-yellow-600",
+        isV && "bg-violet-50 border-violet-500 dark:bg-violet-600/40 dark:border-violet-600",
+      ),
+    })
   }
 
   return items
 }
 
-const useGetTime = (tz: string) => {
-  const [_, tick] = useReducer((x) => x + 1, 0)
+const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
+  const home = useGetHomePlace()
+  const dt = place.tzOffset - home.tzOffset
+  const hh = Math.floor(dt / 60)
+  const mm = Math.abs(dt % 60)
+  if (hh === 0 && mm === 0) return <div className="invisible">12</div>
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      tick()
-    }, 500)
-
-    return () => clearInterval(interval)
-  }, [tz])
-
-  const time = new Date()
-
-  return { time: time.toISOString().split("T")[1].split(".")[0] }
-}
-
-const TzInfo: FC<{ place: Place }> = ({ place }) => {
-  const obj = useGetTime(place.tzName)
+  // prettier-ignore
+  const items = [{ v: Math.abs(hh), u: "h" },{ v: Math.abs(mm), u: "m" }]
+  const label = `${dt < 0 ? "-" : "+"}${items
+    .filter((x) => x.v !== 0)
+    .map((x) => `${x.v}${x.u}`)
+    .join(" ")}`
 
   return (
-    <div className="flex grow flex-col">
-      <div className="flex items-center justify-between text-[15px] font-medium">
-        <div>{place.city}</div>
-        <div className="font-mono text-sm">{obj.time}</div>
+    <div
+      className={clsx(
+        "whitespace-nowrap text-xs tracking-tighter",
+        dt < 0 ? "text-red-600" : "text-green-600",
+      )}
+    >
+      {label}
+    </div>
+  )
+}
+
+const Time: FC<{ place: Place }> = ({ place }) => {
+  const setTzHome = useSetAtom(TzHomeState)
+  const refPlace = useGetHomePlace()
+  const tzMode = useAtomValue(TzModeState)
+  const isHome = place.tzName === refPlace.tzName
+
+  const [obj, setObj] = useState<{ hh: string; mm: string }>()
+
+  const fn = useCallback(() => {
+    const dt = new Date().getTimezoneOffset() + place.tzOffset
+    const ts = new Date().getTime() + dt * 60 * 1000
+    const ct = new Date(ts)
+
+    if (tzMode === "12") {
+      const hh = ct.getHours() % 12 || 12
+      const mm = ct.getMinutes().toString().padStart(2, "0")
+      setObj({ hh: hh.toString(), mm: `${mm} ${ct.getHours() < 12 ? "AM" : "PM"}` })
+    } else {
+      const hh = ct.getHours().toString().padStart(2, "0")
+      const mm = ct.getMinutes().toString().padStart(2, "0")
+      setObj({ hh, mm })
+    }
+  }, [place, tzMode])
+
+  useEffect(() => {
+    fn()
+    const interval = setInterval(() => fn, 1000)
+    return () => clearInterval(interval)
+  }, [tzMode])
+
+  if (!obj) return null
+
+  return (
+    <button
+      onClick={() => setTzHome(place.tzName)}
+      disabled={isHome}
+      className={clsx(
+        "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
+        "whitespace-nowrap tracking-tighter",
+        !isHome && "text-black dark:text-white",
+        isHome && "border-yellow-400 bg-yellow-400/30 font-medium text-yellow-600",
+        isHome && "dark:border-yellow-400/50 dark:bg-yellow-400/15 dark:text-yellow-400",
+      )}
+    >
+      {obj.hh}
+      <span className="animate-tick">:</span>
+      {obj.mm}
+    </button>
+  )
+}
+
+const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
+  return (
+    <div className="flex max-w-[228px] grow flex-row items-center gap-2 text-sm leading-none">
+      <div className="flex flex-col">
+        <div className="flex flex-row items-center gap-2">
+          <div className="max-w-[160px] truncate text-ellipsis text-nowrap">{place.city}</div>
+          <PlaceOffset place={place} />
+        </div>
+        <div className="text-xs">{place.country}</div>
       </div>
-      <div className="flex items-center justify-between text-[12px] text-gray-600">
-        <div>{place.country}</div>
-        <div>{""}</div>
+
+      <div className="flex grow flex-col items-end font-mono text-[15px]">
+        <Time place={place} />
+        {/* <PlaceOffset place={place} /> */}
       </div>
     </div>
   )
@@ -57,52 +186,46 @@ const TzInfo: FC<{ place: Place }> = ({ place }) => {
 
 export const Timeline: FC<{ place: Place }> = ({ place }) => {
   const setTzList = useSetAtom(TzListState)
-  const setTzHome = useSetAtom(TzHomeState)
   const refPlace = useGetHomePlace()
+  const isHome = place.tzName === refPlace.tzName
   const hours = getTimeline(refPlace, place)
 
-  const isHome = place.tzName === refPlace.tzName
-
   return (
-    <div className="flex grow items-center justify-between leading-none">
-      <div className="group flex grow flex-row items-center gap-1.5 px-1.5">
-        <button
-          onClick={() => setTzList((old) => old.filter((x) => x !== place.tzName))}
-          className={twJoin(
-            "h-[24px] w-[24px] font-mono text-lg leading-none text-gray-400 hover:text-red-500",
-            "invisible group-hover:visible",
-            isHome && "!invisible",
-          )}
-        >
-          &times;
-        </button>
+    <div
+      className={clsx(
+        "flex grow items-center justify-between gap-2.5 px-4 py-1",
+        "group relative even:bg-body/30",
+        // isHome && "rounded-md outline outline-1 outline-offset-1 outline-yellow-400",
+      )}
+    >
+      <button
+        onClick={() => setTzList((old) => old.filter((x) => x !== place.tzName))}
+        disabled={isHome}
+        className={clsx(
+          "absolute ml-[-56px] h-[32px] w-[32px]",
+          "rounded-full font-mono leading-none",
+          isHome ? "invisible text-[20px]" : "text-[22px] text-body-content/20 hover:text-red-500",
+        )}
+      >
+        {isHome ? "🏠" : <>&times;</>}
+      </button>
 
-        <button
-          className={twJoin(
-            "flex h-[32px] w-[32px] select-none items-center justify-center rounded-full border text-xs",
-            isHome && "border-orange-500",
-          )}
-          onClick={() => setTzHome(place.tzName)}
-          disabled={isHome}
-        >
-          {isHome ? "🏠" : withSign((place.tzOffset - refPlace.tzOffset) / 60)}
-        </button>
-
-        <TzInfo place={place} />
-      </div>
+      <PlaceInfo place={place} />
 
       <div className="flex shrink-0 select-none flex-row">
         {hours.map((x, idx) => (
           <div
             key={idx}
-            className={twJoin(
-              "flex h-[32px] w-[32px] items-center justify-center",
+            className={clsx(
+              "flex h-[32px] w-[32px] items-center justify-center dark:text-white/85",
               "border-b border-t border-gray-300 hover:bg-gray-200",
-              x.isDayStart && "rounded-l border-l",
-              x.isDayEnd && "rounded-r border-r",
+              x.isDayStart && "w-[31px]! ml-[1px] rounded-l-md border-l",
+              x.isDayEnd && "w-[30px]! mr-[2px] rounded-r-md border-r",
+              "leadning-none text-center",
+              x.className,
             )}
           >
-            {x.hour}
+            {x.label}
           </div>
         ))}
       </div>
