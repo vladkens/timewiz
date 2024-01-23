@@ -12,5 +12,6 @@ export default defineConfig((configEnv) => {
         : null,
     ],
     build: { sourcemap: "hidden" },
+    base: "",
   }
 })
