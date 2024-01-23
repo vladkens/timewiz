@@ -1,4 +1,5 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
+import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { Provider, useAtom } from "jotai"
 import { FC, useState } from "react"
@@ -70,7 +71,15 @@ const Head: FC = () => {
 
 const Main: FC = () => {
   const [tzs, setTzs] = useAtom(TzListState)
-  const places = tzs.map((tz) => getPlaceByTzName(tz))
+  const places = filterNullable(
+    tzs.map((tz) => {
+      try {
+        return getPlaceByTzName(tz)
+      } catch (e) {
+        return null
+      }
+    }),
+  )
 
   return (
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">

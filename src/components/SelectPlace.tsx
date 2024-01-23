@@ -1,8 +1,8 @@
-import { TimeZone, getTimeZones } from "@vvo/tzdb"
+import { TimeZone } from "@vvo/tzdb"
 import clsx from "clsx"
 import Fuse from "fuse.js"
 import { FC, useEffect, useState } from "react"
-import { Place, tzToPlace } from "../utils/places"
+import { Place, TimeZones, tzToPlace } from "../utils/places"
 
 type SelectPlaceProps = {
   values: Place[]
@@ -12,8 +12,10 @@ type SelectPlaceProps = {
 export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
   const [value, setValue] = useState("")
 
-  const timezones = getTimeZones()
-  const fuse = new Fuse(timezones, { threshold: 0.1, keys: ["name", "mainCities", "countryName"] })
+  const fuse = new Fuse(Object.values(TimeZones), {
+    threshold: 0.1,
+    keys: ["name", "mainCities", "countryName"],
+  })
 
   const options = (value.length > 0 ? fuse.search(value).map((x) => x.item) : [])
     .filter((x) => !values.find((y) => y.tzName === x.name))
