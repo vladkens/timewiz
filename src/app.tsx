@@ -2,6 +2,7 @@ import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
 import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { Provider, useAtom } from "jotai"
+import { uniq } from "lodash-es"
 import { FC, useEffect, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
@@ -94,7 +95,10 @@ const Main: FC = () => {
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">
       <div className="flex items-center gap-2.5 bg-body/30 px-4 py-2.5">
         <div className="w-full max-w-[228px]">
-          <SelectPlace values={places} onChange={(place) => setTzs((old) => [...old, place.uid])} />
+          <SelectPlace
+            values={places}
+            onChange={(place) => setTzs((old) => uniq([...old, place.uid]))}
+          />
         </div>
       </div>
 

@@ -1,9 +1,12 @@
 import { atom, useAtomValue } from "jotai"
+import { uniq } from "lodash-es"
 import { atomWithStorageSync } from "./utils/atomWithStorageSync"
 import { GeoId, GeoName, getGeoNameById, getSystemGeoName } from "./utils/geonames"
 
 const systemTimeZone = getSystemGeoName().uid
-export const TzListState = atomWithStorageSync<GeoId[]>("tzList", [systemTimeZone])
+const defaults = uniq([systemTimeZone, 5128581, 2643743, 1275339]) as GeoId[] // NYC, London, Mumbai
+
+export const TzListState = atomWithStorageSync<GeoId[]>("tzList", defaults)
 export const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
 
 const HomePlace = atom((get) => getGeoNameById(get(TzHomeState)))

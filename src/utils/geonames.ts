@@ -46,10 +46,6 @@ const prepare = () => {
 
     const timeZoneHourCycle = tzMode === "" ? "h24" : "h12"
 
-    if (city === "London") {
-      console.log(country.code, country.locale, timeZoneHourCycle)
-    }
-
     const tzName =
       Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
         .formatToParts(today)
