@@ -108,6 +108,7 @@ def main():
     cities = sorted(cities, key=lambda x: x.population, reverse=True)
 
     timezones = sorted([x.timezone for x in cities])
+    timezones = list(set(timezones))
     timezones_idx = {x: i for i, x in enumerate(timezones)}
 
     countries = sorted([[x.iso, x.country] for x in get_countries()])
