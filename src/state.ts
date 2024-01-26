@@ -48,9 +48,9 @@ export const useSetHomeGeo = () => {
   const setDate = useSetAtom(CustomDate)
 
   return (id: GeoId) => {
-    const tt = DateTime.now().setZone(getGeoNameById(id).timeZone)
-    setHome(id)
+    // const tt = DateTime.now().setZone(getGeoNameById(id).timeZone)
     // setDate(tt.toISODate()!)
+    setHome(id)
     setDate(null)
   }
 }
