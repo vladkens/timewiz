@@ -89,8 +89,8 @@ const getTimeline = (refPlace: GeoName, place: GeoName) => {
 }
 
 const PlaceOffset: FC<{ place: GeoName }> = ({ place }) => {
-  const home = useGetHomePlace()
-  const dt = place.timeZoneOffset - home.timeZoneOffset
+  const home = useGetHomePlace(place)
+  const dt = place.timeZoneOffset - home.place.timeZoneOffset
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
   if (hh === 0 && mm === 0) return <div className="invisible">12</div>
@@ -116,8 +116,7 @@ const PlaceOffset: FC<{ place: GeoName }> = ({ place }) => {
 
 const Time: FC<{ place: GeoName }> = ({ place }) => {
   const setTzHome = useSetAtom(TzHomeState)
-  const refPlace = useGetHomePlace()
-  const isHome = place.uid === refPlace.uid
+  const home = useGetHomePlace(place)
   const mode = useTimeMode(place)
 
   const [obj, setObj] = useState<{ hh: string; mm: string }>()
@@ -149,13 +148,13 @@ const Time: FC<{ place: GeoName }> = ({ place }) => {
   return (
     <button
       onClick={() => setTzHome(place.uid)}
-      disabled={isHome}
+      disabled={home.active}
       className={clsx(
         "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
         "whitespace-nowrap tracking-tighter",
-        !isHome && "text-black dark:text-white",
-        isHome && "border-yellow-400 bg-yellow-400/30 font-medium text-yellow-600",
-        isHome && "dark:border-yellow-400/50 dark:bg-yellow-400/15 dark:text-yellow-400",
+        !home.active && "text-black dark:text-white",
+        home.active && "border-yellow-400 bg-yellow-400/30 font-medium text-yellow-600",
+        home.active && "dark:border-yellow-400/50 dark:bg-yellow-400/15 dark:text-yellow-400",
       )}
     >
       {obj.hh}
@@ -186,9 +185,8 @@ const PlaceInfo: FC<{ place: GeoName }> = ({ place }) => {
 
 export const Timeline: FC<{ place: GeoName }> = ({ place }) => {
   const setTzList = useSetAtom(TzListState)
-  const refPlace = useGetHomePlace()
-  const isHome = place.timeZone === refPlace.timeZone
-  const hours = getTimeline(refPlace, place)
+  const home = useGetHomePlace(place)
+  const hours = getTimeline(home.place, place)
 
   return (
     <div
@@ -200,14 +198,16 @@ export const Timeline: FC<{ place: GeoName }> = ({ place }) => {
     >
       <button
         onClick={() => setTzList((old) => old.filter((x) => x !== place.uid))}
-        disabled={isHome}
+        disabled={home.active}
         className={clsx(
           "absolute ml-[-56px] h-[32px] w-[32px]",
           "rounded-full font-mono leading-none",
-          isHome ? "invisible text-[20px]" : "text-[22px] text-body-content/20 hover:text-red-500",
+          home.active
+            ? "invisible text-[20px]"
+            : "text-[22px] text-body-content/20 hover:text-red-500",
         )}
       >
-        {isHome ? "🏠" : <>&times;</>}
+        {home.active ? "🏠" : <>&times;</>}
       </button>
 
       <PlaceInfo place={place} />

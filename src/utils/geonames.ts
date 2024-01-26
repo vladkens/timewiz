@@ -5,14 +5,14 @@ export type GeoId = Brand<number, "GeoId">
 
 const records = _records as {
   timezones: string[]
-  countries: [string, string][]
+  countries: [string, string, string][]
   cities: [GeoId, string, number, number][]
 }
 
 export type GeoName = {
   uid: GeoId
   timeZoneOffset: number
-  timeZoneDayPeriod: "h12" | "h24"
+  timeZoneHourCycle: "h12" | "h24"
   timeZone: string
   countryCode: string
   country: string
@@ -21,8 +21,10 @@ export type GeoName = {
 
 const prepare = () => {
   const countriesMap = records.countries.reduce(
-    (acc, val, idx) => Object.assign(acc, { [idx]: { code: val[0], name: val[1] } }),
-    {} as Record<number, { code: string; name: string }>,
+    (acc, val, idx) => {
+      return Object.assign(acc, { [idx]: { code: val[0], name: val[1], locale: val[2] } })
+    },
+    {} as Record<number, { code: string; name: string; locale: string }>,
   )
 
   const timezonesMap = records.timezones.reduce(
@@ -31,21 +33,25 @@ const prepare = () => {
   )
 
   const places = records.cities.map((record) => {
+    const city = record[1]
     const timeZone = timezonesMap[record[2]]
-    const { code: countryCode, name: country } = countriesMap[record[3]]
-
+    const country = countriesMap[record[3]]
     const today = new Date().setHours(0, 0, 0, 0)
 
     const tzMode =
-      Intl.DateTimeFormat(`en-${countryCode}`, { timeZone, timeStyle: "long" })
+      Intl.DateTimeFormat(country.locale, { timeZone, timeStyle: "long" })
         .formatToParts(today)
         .find((x) => x.type === "dayPeriod")
         ?.value.toLowerCase() ?? ""
 
-    const timeZoneDayPeriod = tzMode === "" ? "h24" : "h12"
+    const timeZoneHourCycle = tzMode === "" ? "h24" : "h12"
+
+    if (city === "London") {
+      console.log(country.code, country.locale, timeZoneHourCycle)
+    }
 
     const tzName =
-      Intl.DateTimeFormat(`en-us`, { timeZone, timeZoneName: "longOffset" })
+      Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
         .formatToParts(today)
         .find((x) => x.type === "timeZoneName")?.value ?? ""
 
@@ -55,12 +61,12 @@ const prepare = () => {
 
     return {
       uid: record[0] as GeoId,
-      countryCode,
+      countryCode: country.code,
       timeZone,
-      country,
-      city: record[1],
+      country: country.name,
+      city,
       timeZoneOffset,
-      timeZoneDayPeriod,
+      timeZoneHourCycle,
     } satisfies GeoName
   })
 

@@ -7,12 +7,16 @@ export const TzListState = atomWithStorageSync<GeoId[]>("tzList", [systemTimeZon
 export const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
 
 const HomePlace = atom((get) => getGeoNameById(get(TzHomeState)))
-export const useGetHomePlace = () => useAtomValue(HomePlace)
+
+export const useGetHomePlace = (otherPlace: GeoName) => {
+  const place = useAtomValue(HomePlace)
+  return { place, active: otherPlace.uid === place.uid }
+}
 
 export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
 export const useTimeMode = (place: GeoName): "h12" | "h24" => {
   const mode = useAtomValue(TzModeState)
   if (mode === "12") return "h12"
   if (mode === "24") return "h24"
-  return place.timeZoneDayPeriod
+  return place.timeZoneHourCycle
 }

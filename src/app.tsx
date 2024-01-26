@@ -2,7 +2,7 @@ import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
 import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { Provider, useAtom } from "jotai"
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
 import { TzListState, TzModeState } from "./state"
@@ -80,6 +80,15 @@ const Main: FC = () => {
       }
     }),
   )
+
+  useEffect(() => {
+    Array.from(document.querySelectorAll(".animate-tick"))
+      .flatMap((x) => x.getAnimations())
+      .forEach((x) => {
+        x.cancel()
+        x.play()
+      })
+  }, [tzs])
 
   return (
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">

@@ -99,19 +99,25 @@ def get_countries():
     return [Country(*row) for row in rows]
 
 
-MIN_POPULATION = 75_000
+def get_locale(langs: list[str]):
+    langs = [x.strip() for x in langs]
+    langs = [x for x in langs if len(x)]
+    return langs[0] if len(langs) else "en"
 
 
 def main():
+    MIN_POPULATION = 100_000
+
     cities = get_cities()
     # cities = [x for x in cities if x.population >= 100_000]
     cities = sorted(cities, key=lambda x: x.population, reverse=True)
 
-    timezones = sorted([x.timezone for x in cities])
-    timezones = list(set(timezones))
+    timezones = list(set([x.timezone for x in cities]))
+    timezones = sorted(timezones)
     timezones_idx = {x: i for i, x in enumerate(timezones)}
 
-    countries = sorted([[x.iso, x.country] for x in get_countries()])
+    countries = [[x.iso, x.country, get_locale(x.languages)] for x in get_countries()]
+    countries = sorted(countries, key=lambda x: x[0].lower())
     countries_idx = {x[0]: i for i, x in enumerate(countries)}
 
     features_count = defaultdict(int)
