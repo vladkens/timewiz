@@ -2,11 +2,11 @@ import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
 import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { Provider, useAtom } from "jotai"
-import { uniq } from "lodash-es"
+import { range, uniq } from "lodash-es"
 import { FC, useEffect, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
-import { TzListState, TzModeState } from "./state"
+import { DateState, TzListState, TzModeState, getDate } from "./state"
 import { getGeoNameById } from "./utils/geonames"
 
 const ChangeTheme: FC = () => {
@@ -70,6 +70,41 @@ const Head: FC = () => {
   )
 }
 
+const DateNavigation: FC = () => {
+  const [date, setDate] = useAtom(DateState)
+
+  const dates = range(-1, 7).map((x) => getDate(x))
+
+  return (
+    <div className="flex grow flex-row items-center gap-1">
+      {dates.map((x) => (
+        <button
+          key={x}
+          onClick={() => setDate(x)}
+          disabled={x === date}
+          className={clsx(
+            "rounded-md border px-1 py-0.5 text-[13px]",
+            x !== date && "border-card-content",
+            x === date && "border-card-content/30 bg-card",
+          )}
+        >
+          {new Date(x).toLocaleDateString("en-US", {
+            // weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+        </button>
+      ))}
+
+      <div key="xx" className="flex grow justify-end">
+        <button key="xx" onClick={() => setDate("2024-03-31")}>
+          DST
+        </button>
+      </div>
+    </div>
+  )
+}
+
 const Main: FC = () => {
   const [tzs, setTzs] = useAtom(TzListState)
   const places = filterNullable(
@@ -100,6 +135,8 @@ const Main: FC = () => {
             onChange={(place) => setTzs((old) => uniq([...old, place.uid]))}
           />
         </div>
+
+        <DateNavigation />
       </div>
 
       <div className="flex flex-col py-2.5">

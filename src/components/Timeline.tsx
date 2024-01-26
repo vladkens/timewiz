@@ -1,33 +1,31 @@
 import clsx from "clsx"
-import { useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
+import { DateTime } from "luxon"
 import { FC, useCallback, useEffect, useState } from "react"
-import { TzHomeState, TzListState, useGetHomePlace, useTimeMode } from "../state"
+import { DateState, TzHomeState, TzListState, useGetHomePlace, useTimeMode } from "../state"
 import { GeoName } from "../utils/geonames"
 
-const getDayLabel: FC<{ date: Date; mode: "h12" | "h24" }> = ({ date, mode }) => {
-  const [h, m] = [date.getHours(), date.getMinutes()]
+const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
   const cls = "flex flex-col gap-0.5 uppercase leading-none"
 
-  if (h === 0) {
-    const m = new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
-    const d = date.getDate()
+  if (date.hour === 0) {
     return (
       <div className={cls}>
-        <div className="text-[8px]">{m}</div>
-        <div className="text-[12px]">{d}</div>
+        <div className="text-[8px]">{date.monthShort}</div>
+        <div className="text-[12px]">{date.day}</div>
       </div>
     )
   }
 
-  const hh = h.toString().padStart(2, "0")
-  const mm = m.toString().padStart(2, "0")
+  const hh = date.hour.toString().padStart(2, "0")
+  const mm = date.minute.toString().padStart(2, "0")
 
   if (mode === "h12") {
     return (
       <div className={cls}>
         <div className="text-[12px]">
-          {m === 0 ? (
-            h
+          {date.minute === 0 ? (
+            date.hour
           ) : (
             <div className="flex flex-row items-end">
               <div className="">{hh}</div>
@@ -35,13 +33,13 @@ const getDayLabel: FC<{ date: Date; mode: "h12" | "h24" }> = ({ date, mode }) =>
             </div>
           )}
         </div>
-        <div className="text-[8px] lowercase">{h < 12 ? "am" : "pm"}</div>
+        <div className="text-[8px] lowercase">{date.hour < 12 ? "am" : "pm"}</div>
       </div>
     )
   }
 
   if (mode === "h24") {
-    if (m !== 0) {
+    if (date.minute !== 0) {
       return (
         <div className={cls}>
           <div className="text-[12px]">{hh}</div>
@@ -50,34 +48,35 @@ const getDayLabel: FC<{ date: Date; mode: "h12" | "h24" }> = ({ date, mode }) =>
       )
     }
 
-    // return hh
-    return h.toString()
+    return date.hour.toString()
   }
 
   return null
 }
 
-const getTimeline = (refPlace: GeoName, place: GeoName) => {
-  const to = new Date().getTimezoneOffset() - refPlace.timeZoneOffset + place.timeZoneOffset
-  const dt = to * 60 * 1000
-  const ts = new Date().setUTCHours(0, 0, 0, 0) + dt
-
+const useGetTimeline = (place: GeoName) => {
+  const home = useGetHomePlace(place).place
   const mode = useTimeMode(place)
+  const date = useAtomValue(DateState)
+
+  const ss = DateTime.fromISO(date, { zone: home.timeZone }).setZone(place.timeZone)
 
   const items = []
   for (let i = 0; i < 24; ++i) {
-    const ct = new Date(ts + i * 60 * 60 * 1000)
-    const hh = ct.getHours()
+    const tt = ss.plus({ hours: i })
+    const hh = tt.hour
 
-    const isG = hh >= 9 && hh <= 18
-    const isY = [7, 8, 19, 20, 21].includes(hh)
-    const isV = !isG && !isY
+    const isR = tt.isWeekend
+    const isG = !isR && hh >= 9 && hh <= 18
+    const isY = !isR && [7, 8, 19, 20, 21].includes(hh)
+    const isV = !isR && !isG && !isY
 
     items.push({
-      label: getDayLabel({ date: ct, mode }),
+      label: getDayLabel({ date: tt, mode }),
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       className: clsx(
+        isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
         isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
         isY && "bg-yellow-50 border-yellow-500 dark:bg-yellow-600/40 dark:border-yellow-600",
         isV && "bg-violet-50 border-violet-500 dark:bg-violet-600/40 dark:border-violet-600",
@@ -185,8 +184,8 @@ const PlaceInfo: FC<{ place: GeoName }> = ({ place }) => {
 
 export const Timeline: FC<{ place: GeoName }> = ({ place }) => {
   const setTzList = useSetAtom(TzListState)
+  const hours = useGetTimeline(place)
   const home = useGetHomePlace(place)
-  const hours = getTimeline(home.place, place)
 
   return (
     <div

@@ -106,7 +106,7 @@ def get_locale(langs: list[str]):
 
 
 def main():
-    MIN_POPULATION = 100_000
+    MIN_POPULATION = 80_000
 
     cities = get_cities()
     # cities = [x for x in cities if x.population >= 100_000]

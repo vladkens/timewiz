@@ -16,6 +16,13 @@ export const useGetHomePlace = (otherPlace: GeoName) => {
   return { place, active: otherPlace.uid === place.uid }
 }
 
+export const getDate = (days = 0) => {
+  const diff = days * 24 * 60 * 60 * 1000
+  return new Date(Date.now() + diff).toISOString().split("T")[0]
+}
+
+export const DateState = atom<string>(getDate())
+
 export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
 export const useTimeMode = (place: GeoName): "h12" | "h24" => {
   const mode = useAtomValue(TzModeState)
