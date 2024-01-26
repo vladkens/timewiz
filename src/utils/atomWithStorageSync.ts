@@ -13,7 +13,7 @@ export const atomWithStorageSync = <T>(key: string, initialValue: T) => {
   const anAtom = atom(parsedValue, (get, set, newValue: T | CallbackSet<T>) => {
     const nextValue = isCallback(newValue) ? newValue(get(anAtom)) : newValue
     set(anAtom, nextValue)
-    localStorage.setItem(key, JSON.stringify(nextValue))
+    Promise.resolve().then(() => localStorage.setItem(key, JSON.stringify(nextValue)))
   })
 
   return anAtom

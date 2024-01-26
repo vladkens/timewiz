@@ -1,14 +1,18 @@
 import { atom, useAtomValue } from "jotai"
 import { atomWithStorageSync } from "./utils/atomWithStorageSync"
-import { getPlaceByTzName, getSystemPlace } from "./utils/places"
+import { GeoId, GeoName, getGeoNameById, getSystemGeoName } from "./utils/geonames"
 
-type TzView = "12" | "24" | "MX"
+const systemTimeZone = getSystemGeoName().uid
+export const TzListState = atomWithStorageSync<GeoId[]>("tzList", [systemTimeZone])
+export const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
 
-const systemTz = getSystemPlace().tzName
-
-export const TzListState = atomWithStorageSync<string[]>("tzList", [systemTz])
-export const TzHomeState = atomWithStorageSync("tzHome", systemTz)
-export const TzModeState = atomWithStorageSync<TzView>("tzMode", "24")
-
-const HomePlace = atom((get) => getPlaceByTzName(get(TzHomeState)))
+const HomePlace = atom((get) => getGeoNameById(get(TzHomeState)))
 export const useGetHomePlace = () => useAtomValue(HomePlace)
+
+export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
+export const useTimeMode = (place: GeoName): "h12" | "h24" => {
+  const mode = useAtomValue(TzModeState)
+  if (mode === "12") return "h12"
+  if (mode === "24") return "h24"
+  return place.timeZoneDayPeriod
+}

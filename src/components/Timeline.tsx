@@ -1,12 +1,10 @@
 import clsx from "clsx"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { FC, useCallback, useEffect, useState } from "react"
-import { TzHomeState, TzListState, TzModeState, useGetHomePlace } from "../state"
-import { Place } from "../utils/places"
+import { TzHomeState, TzListState, useGetHomePlace, useTimeMode } from "../state"
+import { GeoName } from "../utils/geonames"
 
-const getDayLabel: FC<{ date: Date }> = ({ date }) => {
-  const tzMode = useAtomValue(TzModeState)
-
+const getDayLabel: FC<{ date: Date; mode: "h12" | "h24" }> = ({ date, mode }) => {
   const [h, m] = [date.getHours(), date.getMinutes()]
   const cls = "flex flex-col gap-0.5 uppercase leading-none"
 
@@ -24,7 +22,7 @@ const getDayLabel: FC<{ date: Date }> = ({ date }) => {
   const hh = h.toString().padStart(2, "0")
   const mm = m.toString().padStart(2, "0")
 
-  if (tzMode === "12") {
+  if (mode === "h12") {
     return (
       <div className={cls}>
         <div className="text-[12px]">
@@ -42,7 +40,7 @@ const getDayLabel: FC<{ date: Date }> = ({ date }) => {
     )
   }
 
-  if (tzMode === "24") {
+  if (mode === "h24") {
     if (m !== 0) {
       return (
         <div className={cls}>
@@ -56,13 +54,15 @@ const getDayLabel: FC<{ date: Date }> = ({ date }) => {
     return h.toString()
   }
 
-  console.warn("Unknown tzMode", tzMode)
   return null
 }
 
-const getTimeline = (refPlace: Place, place: Place) => {
-  const dt = (new Date().getTimezoneOffset() - refPlace.tzOffset + place.tzOffset) * 60 * 1000
+const getTimeline = (refPlace: GeoName, place: GeoName) => {
+  const to = new Date().getTimezoneOffset() - refPlace.timeZoneOffset + place.timeZoneOffset
+  const dt = to * 60 * 1000
   const ts = new Date().setUTCHours(0, 0, 0, 0) + dt
+
+  const mode = useTimeMode(place)
 
   const items = []
   for (let i = 0; i < 24; ++i) {
@@ -74,7 +74,7 @@ const getTimeline = (refPlace: Place, place: Place) => {
     const isV = !isG && !isY
 
     items.push({
-      label: getDayLabel({ date: ct }),
+      label: getDayLabel({ date: ct, mode }),
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       className: clsx(
@@ -88,9 +88,9 @@ const getTimeline = (refPlace: Place, place: Place) => {
   return items
 }
 
-const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
+const PlaceOffset: FC<{ place: GeoName }> = ({ place }) => {
   const home = useGetHomePlace()
-  const dt = place.tzOffset - home.tzOffset
+  const dt = place.timeZoneOffset - home.timeZoneOffset
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
   if (hh === 0 && mm === 0) return <div className="invisible">12</div>
@@ -114,20 +114,20 @@ const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
   )
 }
 
-const Time: FC<{ place: Place }> = ({ place }) => {
+const Time: FC<{ place: GeoName }> = ({ place }) => {
   const setTzHome = useSetAtom(TzHomeState)
   const refPlace = useGetHomePlace()
-  const tzMode = useAtomValue(TzModeState)
-  const isHome = place.tzName === refPlace.tzName
+  const isHome = place.uid === refPlace.uid
+  const mode = useTimeMode(place)
 
   const [obj, setObj] = useState<{ hh: string; mm: string }>()
 
   const fn = useCallback(() => {
-    const dt = new Date().getTimezoneOffset() + place.tzOffset
+    const dt = new Date().getTimezoneOffset() + place.timeZoneOffset
     const ts = new Date().getTime() + dt * 60 * 1000
     const ct = new Date(ts)
 
-    if (tzMode === "12") {
+    if (mode === "h12") {
       const hh = ct.getHours() % 12 || 12
       const mm = ct.getMinutes().toString().padStart(2, "0")
       setObj({ hh: hh.toString(), mm: `${mm} ${ct.getHours() < 12 ? "AM" : "PM"}` })
@@ -136,19 +136,19 @@ const Time: FC<{ place: Place }> = ({ place }) => {
       const mm = ct.getMinutes().toString().padStart(2, "0")
       setObj({ hh, mm })
     }
-  }, [place, tzMode])
+  }, [place, mode])
 
   useEffect(() => {
     fn()
     const interval = setInterval(() => fn, 1000)
     return () => clearInterval(interval)
-  }, [tzMode])
+  }, [mode])
 
   if (!obj) return null
 
   return (
     <button
-      onClick={() => setTzHome(place.tzName)}
+      onClick={() => setTzHome(place.uid)}
       disabled={isHome}
       className={clsx(
         "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
@@ -165,7 +165,7 @@ const Time: FC<{ place: Place }> = ({ place }) => {
   )
 }
 
-const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
+const PlaceInfo: FC<{ place: GeoName }> = ({ place }) => {
   return (
     <div className="flex max-w-[228px] grow flex-row items-center gap-2 text-sm leading-none">
       <div className="flex flex-col">
@@ -184,10 +184,10 @@ const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
   )
 }
 
-export const Timeline: FC<{ place: Place }> = ({ place }) => {
+export const Timeline: FC<{ place: GeoName }> = ({ place }) => {
   const setTzList = useSetAtom(TzListState)
   const refPlace = useGetHomePlace()
-  const isHome = place.tzName === refPlace.tzName
+  const isHome = place.timeZone === refPlace.timeZone
   const hours = getTimeline(refPlace, place)
 
   return (
@@ -199,7 +199,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       )}
     >
       <button
-        onClick={() => setTzList((old) => old.filter((x) => x !== place.tzName))}
+        onClick={() => setTzList((old) => old.filter((x) => x !== place.uid))}
         disabled={isHome}
         className={clsx(
           "absolute ml-[-56px] h-[32px] w-[32px]",

@@ -6,7 +6,7 @@ import { FC, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
 import { TzListState, TzModeState } from "./state"
-import { getPlaceByTzName } from "./utils/places"
+import { getGeoNameById } from "./utils/geonames"
 
 const ChangeTheme: FC = () => {
   const [dark, setDark] = useState(() => localStorage.getItem("dark") === "true")
@@ -33,7 +33,7 @@ const ChangeTimeView: FC = () => {
   const buttons: { value: typeof value; text: string; cls: string }[] = [
     { value: "12" as const, text: "am\npm", cls: "text-[10px]" },
     { value: "24" as const, text: "24", cls: "text-[13px]" },
-    // { value: "MX" as const, text: "MX", cls: "text-[12px]" },
+    { value: "MX" as const, text: "MX", cls: "text-[12px]" },
   ]
 
   return (
@@ -74,7 +74,7 @@ const Main: FC = () => {
   const places = filterNullable(
     tzs.map((tz) => {
       try {
-        return getPlaceByTzName(tz)
+        return getGeoNameById(tz)
       } catch (e) {
         return null
       }
@@ -85,16 +85,13 @@ const Main: FC = () => {
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">
       <div className="flex items-center gap-2.5 bg-body/30 px-4 py-2.5">
         <div className="w-full max-w-[228px]">
-          <SelectPlace
-            values={places}
-            onChange={(place) => setTzs((old) => [...old, place.tzName])}
-          />
+          <SelectPlace values={places} onChange={(place) => setTzs((old) => [...old, place.uid])} />
         </div>
       </div>
 
       <div className="flex flex-col py-2.5">
-        {places.map((x, idx) => (
-          <Timeline key={`${idx}-${x.tzAbbr}`} place={x} />
+        {places.map((x) => (
+          <Timeline key={x.uid} place={x} />
         ))}
       </div>
     </main>
