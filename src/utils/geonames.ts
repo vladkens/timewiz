@@ -1,3 +1,5 @@
+import { filterNullable } from "array-utils-ts"
+import { DateTime } from "luxon"
 import _records from "./geonames.json"
 
 type Brand<T, BrandT> = T & { _type: BrandT }
@@ -11,12 +13,24 @@ const records = _records as {
 
 export type GeoName = {
   uid: GeoId
-  timeZoneOffset: number
-  timeZoneHourCycle: "h12" | "h24"
   timeZone: string
+  hourCycle: "h12" | "h24"
   countryCode: string
   country: string
   city: string
+}
+
+const getHourCycle = (zone: string, locale: string) => {
+  const temp = DateTime.fromObject({ hour: 13 }, { zone }) //
+    .toLocaleString(DateTime.TIME_SIMPLE, { locale })
+    .replaceAll(".", ":")
+    .toLowerCase()
+
+  if (temp.includes("13:00")) return "h24"
+  if (temp.includes("1:00") || temp.includes("pm")) return "h12"
+
+  // console.log({ zone, locale }, temp) // debug
+  return "h24"
 }
 
 const prepare = () => {
@@ -33,40 +47,20 @@ const prepare = () => {
   )
 
   const places = records.cities.map((record) => {
-    const city = record[1]
-    const timeZone = timezonesMap[record[2]]
-    const country = countriesMap[record[3]]
-    const today = new Date().setHours(0, 0, 0, 0)
-
-    const tzMode =
-      Intl.DateTimeFormat(country.locale, { timeZone, timeStyle: "long" })
-        .formatToParts(today)
-        .find((x) => x.type === "dayPeriod")
-        ?.value.toLowerCase() ?? ""
-
-    const timeZoneHourCycle = tzMode === "" ? "h24" : "h12"
-
-    const tzName =
-      Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" })
-        .formatToParts(today)
-        .find((x) => x.type === "timeZoneName")?.value ?? ""
-
-    const tzOffs = tzName.substring(3).split(":")
-    const timeZoneOffset =
-      tzOffs.length !== 2 ? 0 : parseInt(tzOffs[0], 10) * 60 + parseInt(tzOffs[1], 10)
-
-    return {
-      uid: record[0] as GeoId,
-      countryCode: country.code,
-      timeZone,
-      country: country.name,
-      city,
-      timeZoneOffset,
-      timeZoneHourCycle,
-    } satisfies GeoName
+    try {
+      const uid = record[0] as GeoId
+      const city = record[1]
+      const timeZone = timezonesMap[record[2]]
+      const { code: countryCode, name: country, locale } = countriesMap[record[3]]
+      const hourCycle = getHourCycle(timeZone, locale)
+      return { uid, countryCode, timeZone, country, city, hourCycle } satisfies GeoName
+    } catch (e) {
+      console.log(`Error parsing geoname: ${record}`)
+      return null
+    }
   })
 
-  return places
+  return filterNullable(places)
 }
 
 const geoNames = prepare()

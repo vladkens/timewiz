@@ -2,7 +2,15 @@ import clsx from "clsx"
 import { useAtomValue, useSetAtom } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useCallback, useEffect, useState } from "react"
-import { DateState, TzHomeState, TzListState, useGetHomePlace, useTimeMode } from "../state"
+import {
+  SelectedDate,
+  TzListState,
+  useGetHomeGeo,
+  useGetHourCycle,
+  useGetOffsetFromHome,
+  useIsHomeGeo,
+  useSetHomeGeo,
+} from "../state"
 import { GeoName } from "../utils/geonames"
 
 const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
@@ -55,11 +63,12 @@ const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }
 }
 
 const useGetTimeline = (place: GeoName) => {
-  const home = useGetHomePlace(place).place
-  const mode = useTimeMode(place)
-  const date = useAtomValue(DateState)
+  const home = useGetHomeGeo()
+  const mode = useGetHourCycle(place)
+  const date = useAtomValue(SelectedDate)
 
   const ss = DateTime.fromISO(date, { zone: home.timeZone }).setZone(place.timeZone)
+  const dd = DateTime.now().setZone(place.timeZone)
 
   const items = []
   for (let i = 0; i < 24; ++i) {
@@ -75,6 +84,7 @@ const useGetTimeline = (place: GeoName) => {
       label: getDayLabel({ date: tt, mode }),
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
+      isCurrent: hh === dd.hour && tt.day === dd.day,
       className: clsx(
         isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
         isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
@@ -88,10 +98,10 @@ const useGetTimeline = (place: GeoName) => {
 }
 
 const PlaceOffset: FC<{ place: GeoName }> = ({ place }) => {
-  const home = useGetHomePlace(place)
-  const dt = place.timeZoneOffset - home.place.timeZoneOffset
+  const dt = useGetOffsetFromHome(place)
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
+
   if (hh === 0 && mm === 0) return <div className="invisible">12</div>
 
   // prettier-ignore
@@ -114,25 +124,28 @@ const PlaceOffset: FC<{ place: GeoName }> = ({ place }) => {
 }
 
 const Time: FC<{ place: GeoName }> = ({ place }) => {
-  const setTzHome = useSetAtom(TzHomeState)
-  const home = useGetHomePlace(place)
-  const mode = useTimeMode(place)
-
+  const setHomeGeo = useSetHomeGeo()
+  const isHomeGeo = useIsHomeGeo(place)
+  const mode = useGetHourCycle(place)
   const [obj, setObj] = useState<{ hh: string; mm: string }>()
 
   const fn = useCallback(() => {
-    const dt = new Date().getTimezoneOffset() + place.timeZoneOffset
-    const ts = new Date().getTime() + dt * 60 * 1000
-    const ct = new Date(ts)
+    const time = DateTime.now().setZone(place.timeZone)
 
-    if (mode === "h12") {
-      const hh = ct.getHours() % 12 || 12
-      const mm = ct.getMinutes().toString().padStart(2, "0")
-      setObj({ hh: hh.toString(), mm: `${mm} ${ct.getHours() < 12 ? "AM" : "PM"}` })
-    } else {
-      const hh = ct.getHours().toString().padStart(2, "0")
-      const mm = ct.getMinutes().toString().padStart(2, "0")
-      setObj({ hh, mm })
+    switch (mode) {
+      case "h12": {
+        const hh = time.hour % 12 || 12
+        const mm = time.minute.toString().padStart(2, "0")
+        setObj({ hh: hh.toString(), mm: `${mm} ${time.hour < 12 ? "AM" : "PM"}` })
+        return
+      }
+
+      case "h24": {
+        const hh = time.hour.toString().padStart(2, "0")
+        const mm = time.minute.toString().padStart(2, "0")
+        setObj({ hh, mm })
+        return
+      }
     }
   }, [place, mode])
 
@@ -146,14 +159,17 @@ const Time: FC<{ place: GeoName }> = ({ place }) => {
 
   return (
     <button
-      onClick={() => setTzHome(place.uid)}
-      disabled={home.active}
+      onClick={() => setHomeGeo(place.uid)}
+      disabled={isHomeGeo}
       className={clsx(
         "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
         "whitespace-nowrap tracking-tighter",
-        !home.active && "text-black dark:text-white",
-        home.active && "border-yellow-400 bg-yellow-400/30 font-medium text-yellow-600",
-        home.active && "dark:border-yellow-400/50 dark:bg-yellow-400/15 dark:text-yellow-400",
+        !isHomeGeo
+          ? "text-black dark:text-white"
+          : clsx(
+              "border-yellow-400 bg-yellow-400/30 font-medium text-yellow-600",
+              "dark:border-yellow-400/50 dark:bg-yellow-400/15 dark:text-yellow-400",
+            ),
       )}
     >
       {obj.hh}
@@ -184,37 +200,38 @@ const PlaceInfo: FC<{ place: GeoName }> = ({ place }) => {
 
 export const Timeline: FC<{ place: GeoName }> = ({ place }) => {
   const setTzList = useSetAtom(TzListState)
+  const isHomeGeo = useIsHomeGeo(place)
   const hours = useGetTimeline(place)
-  const home = useGetHomePlace(place)
 
   return (
     <div
       className={clsx(
         "flex grow items-center justify-between gap-2.5 px-4 py-1",
         "group relative even:bg-body/30",
-        // isHome && "rounded-md outline outline-1 outline-offset-1 outline-yellow-400",
+        // isHomeGeo && "rounded-md outline outline-1 outline-offset-1 outline-yellow-400",
       )}
     >
       <button
         onClick={() => setTzList((old) => old.filter((x) => x !== place.uid))}
-        disabled={home.active}
+        disabled={isHomeGeo}
         className={clsx(
           "absolute ml-[-56px] h-[32px] w-[32px]",
           "rounded-full font-mono leading-none",
-          home.active
+          isHomeGeo
             ? "invisible text-[20px]"
             : "text-[22px] text-body-content/20 hover:text-red-500",
         )}
       >
-        {home.active ? "🏠" : <>&times;</>}
+        {isHomeGeo ? "🏠" : <>&times;</>}
       </button>
 
       <PlaceInfo place={place} />
 
-      <div className="flex shrink-0 select-none flex-row">
+      <div className="flex shrink-0 select-none flex-row" data-home={isHomeGeo}>
         {hours.map((x, idx) => (
           <div
             key={idx}
+            data-current={x.isCurrent}
             className={clsx(
               "flex h-[32px] w-[32px] items-center justify-center dark:text-white/85",
               "border-b border-t border-gray-300 hover:bg-gray-200",

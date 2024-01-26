@@ -1,5 +1,6 @@
-import { atom, useAtomValue } from "jotai"
+import { atom, useAtomValue, useSetAtom } from "jotai"
 import { uniq } from "lodash-es"
+import { DateTime } from "luxon"
 import { atomWithStorageSync } from "./utils/atomWithStorageSync"
 import { GeoId, GeoName, getGeoNameById, getSystemGeoName } from "./utils/geonames"
 
@@ -8,25 +9,76 @@ const defaults = uniq([systemTimeZone, 5128581, 2643743, 1275339]) as GeoId[] //
 
 export const TzListState = atomWithStorageSync<GeoId[]>("tzList", defaults)
 export const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
+export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
 
 const HomePlace = atom((get) => getGeoNameById(get(TzHomeState)))
 
-export const useGetHomePlace = (otherPlace: GeoName) => {
-  const place = useAtomValue(HomePlace)
-  return { place, active: otherPlace.uid === place.uid }
+// Date control
+
+const todayDate = (zone: string) => {
+  return DateTime.now().setZone(zone).set({ hour: 0 })
 }
 
-export const getDate = (days = 0) => {
-  const diff = days * 24 * 60 * 60 * 1000
-  return new Date(Date.now() + diff).toISOString().split("T")[0]
+const CustomDate = atom<string | null>(null)
+
+export const SelectedDate = atom((get) => {
+  const date = get(CustomDate)
+  const home = get(HomePlace)
+  return date ? date : todayDate(home.timeZone).toISODate()!
+})
+
+export const NextDays = atom((get) => {
+  const home = get(HomePlace)
+  const today = todayDate(home.timeZone)
+  const selected = get(SelectedDate)
+
+  const items = []
+  for (let i = -1; i <= 5; ++i) {
+    const date = today.plus({ days: i }).toISODate()!
+    items.push({ date, isActive: date === selected })
+  }
+
+  return items
+})
+
+// hooks
+
+export const useSetHomeGeo = () => {
+  const setHome = useSetAtom(TzHomeState)
+  const setDate = useSetAtom(CustomDate)
+
+  return (id: GeoId) => {
+    const tt = DateTime.now().setZone(getGeoNameById(id).timeZone)
+    setHome(id)
+    // setDate(tt.toISODate()!)
+    setDate(null)
+  }
 }
 
-export const DateState = atom<string>(getDate())
+export const useGetHomeGeo = () => {
+  return useAtomValue(HomePlace)
+}
 
-export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
-export const useTimeMode = (place: GeoName): "h12" | "h24" => {
+export const useIsHomeGeo = (left: GeoName) => {
+  const home = useAtomValue(HomePlace)
+  return home.uid === left.uid
+}
+
+export const useGetOffsetFromHome = (left: GeoName) => {
+  const home = useAtomValue(HomePlace)
+  const d1 = DateTime.now().setZone(home.timeZone)
+  const d2 = DateTime.now().setZone(left.timeZone)
+  return d2.offset - d1.offset
+}
+
+export const useGetHourCycle = (place: GeoName): "h12" | "h24" => {
   const mode = useAtomValue(TzModeState)
   if (mode === "12") return "h12"
   if (mode === "24") return "h24"
-  return place.timeZoneHourCycle
+  return place.hourCycle // "MX"
+}
+
+export const useSetDate = () => {
+  const setDate = useSetAtom(CustomDate)
+  return (date: string) => setDate(date)
 }

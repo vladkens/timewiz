@@ -1,12 +1,19 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
 import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
-import { Provider, useAtom } from "jotai"
-import { range, uniq } from "lodash-es"
-import { FC, useEffect, useState } from "react"
+import { Provider, useAtom, useAtomValue } from "jotai"
+import { uniq } from "lodash-es"
+import { FC, useEffect, useRef, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
-import { DateState, TzListState, TzModeState, getDate } from "./state"
+import {
+  NextDays,
+  SelectedDate,
+  TzListState,
+  TzModeState,
+  useGetHomeGeo,
+  useSetDate,
+} from "./state"
 import { getGeoNameById } from "./utils/geonames"
 
 const ChangeTheme: FC = () => {
@@ -71,24 +78,22 @@ const Head: FC = () => {
 }
 
 const DateNavigation: FC = () => {
-  const [date, setDate] = useAtom(DateState)
-
-  const dates = range(-1, 7).map((x) => getDate(x))
+  const setDate = useSetDate()
+  const dates = useAtomValue(NextDays)
 
   return (
     <div className="flex grow flex-row items-center gap-1">
       {dates.map((x) => (
         <button
-          key={x}
-          onClick={() => setDate(x)}
-          disabled={x === date}
+          key={x.date}
+          onClick={() => setDate(x.date)}
+          disabled={x.isActive}
           className={clsx(
             "rounded-md border px-1 py-0.5 text-[13px]",
-            x !== date && "border-card-content",
-            x === date && "border-card-content/30 bg-card",
+            !x.isActive ? "border-card-content/30 bg-card" : "border-card-content",
           )}
         >
-          {new Date(x).toLocaleDateString("en-US", {
+          {new Date(x.date).toLocaleDateString("en-US", {
             // weekday: "short",
             month: "short",
             day: "numeric",
@@ -126,6 +131,35 @@ const Main: FC = () => {
       })
   }, [tzs])
 
+  const [line, setLine] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
+  const ref = useRef<HTMLDivElement>(null)
+
+  const home = useGetHomeGeo()
+  const date = useAtomValue(SelectedDate)
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const cc = document.querySelector("[data-home=true] [data-current=true]")
+      if (!ref.current || !cc) {
+        setLine((old) => ({ ...old, opacity: 0 }))
+        return
+      }
+
+      const rt = ref.current.getBoundingClientRect()
+      const el = cc.getBoundingClientRect()
+
+      setLine((old) => ({
+        ...old,
+        opacity: 1,
+        height: rt.height - 10,
+        left: el.left - rt.left + 16,
+        top: rt.height / 2,
+      }))
+    }, 1)
+
+    return () => clearTimeout(timeoutId)
+  }, [home, date])
+
   return (
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">
       <div className="flex items-center gap-2.5 bg-body/30 px-4 py-2.5">
@@ -139,7 +173,16 @@ const Main: FC = () => {
         <DateNavigation />
       </div>
 
-      <div className="flex flex-col py-2.5">
+      <div ref={ref} className="relative flex flex-col py-2.5">
+        <div
+          className={clsx(
+            "absolute z-[10] w-[32px] select-none rounded-md",
+            "border-2 border-red-500/50 dark:border-red-500/80",
+            "-translate-x-1/2 -translate-y-1/2",
+          )}
+          style={line}
+        ></div>
+
         {places.map((x) => (
           <Timeline key={x.uid} place={x} />
         ))}
