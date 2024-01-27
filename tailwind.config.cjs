@@ -1,3 +1,7 @@
+const fromVar = (name) => {
+  return `color-mix(in srgb, var(--${name}) calc(<alpha-value> * 100%), transparent)`
+}
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -6,12 +10,13 @@ export default {
     extend: {
       colors: {
         body: {
-          DEFAULT: "rgb(from var(--body) r g b / <alpha-value>)",
-          content: "rgb(from var(--body-content) r g b / <alpha-value>)",
+          // DEFAULT: "rgb(from var(--body) r g b / <alpha-value>)",
+          DEFAULT: fromVar("body"),
+          content: fromVar("body-content"),
         },
         card: {
-          DEFAULT: "rgb(from var(--card) r g b / <alpha-value>)",
-          content: "rgb(from var(--card-content) r g b / <alpha-value>)",
+          DEFAULT: fromVar("card"),
+          content: fromVar("card-content"),
         },
       },
     },

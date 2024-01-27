@@ -3,7 +3,7 @@ import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { Provider, useAtom, useAtomValue } from "jotai"
 import { uniq } from "lodash-es"
-import { FC, useEffect, useRef, useState } from "react"
+import { DragEvent, FC, useEffect, useRef, useState } from "react"
 import { SelectPlace } from "./components/SelectPlace"
 import { Timeline } from "./components/Timeline"
 import {
@@ -14,7 +14,7 @@ import {
   useGetHomeGeo,
   useSetDate,
 } from "./state"
-import { getGeoNameById } from "./utils/geonames"
+import { GeoName, getGeoNameById } from "./utils/geonames"
 
 const ChangeTheme: FC = () => {
   const [dark, setDark] = useState(() => localStorage.getItem("dark") === "true")
@@ -112,17 +112,19 @@ const DateNavigation: FC = () => {
 
 const Main: FC = () => {
   const [tzs, setTzs] = useAtom(TzListState)
-  const places = filterNullable(
-    tzs.map((tz) => {
+  const [places, setPlaces] = useState<GeoName[]>([])
+
+  useEffect(() => {
+    const places = tzs.map((x) => {
       try {
-        return getGeoNameById(tz)
+        return getGeoNameById(x)
       } catch (e) {
         return null
       }
-    }),
-  )
+    })
 
-  useEffect(() => {
+    setPlaces(filterNullable(places))
+
     Array.from(document.querySelectorAll(".animate-tick"))
       .flatMap((x) => x.getAnimations())
       .forEach((x) => {
@@ -160,6 +162,47 @@ const Main: FC = () => {
     return () => clearTimeout(timeoutId)
   }, [home, date])
 
+  const [draggingIdx, setDraggingIdx] = useState(-1)
+  const dragNode = useRef<HTMLDivElement>()
+
+  const handleDragStart = (e: DragEvent<HTMLDivElement>, idx: number) => {
+    if (!e.target) return
+
+    const d = document.createElement("div")
+    d.classList.add("drag-fallback")
+    d.style.width = `1px`
+    d.style.height = `1px`
+    d.style.position = "fixed"
+    d.style.visibility = "hidden"
+    d.style.pointerEvents = "none"
+    document.body.appendChild(d)
+    setTimeout(() => (document.body.style.cursor = "move"), 1)
+
+    e.dataTransfer.dropEffect = "move"
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setDragImage(d, 0, 0)
+
+    dragNode.current = e.target as HTMLDivElement
+    setDraggingIdx(idx)
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, idx: number) => {
+    e.preventDefault()
+    if (dragNode.current === e.target) return
+
+    let newPlaces = [...places]
+    newPlaces.splice(idx, 0, newPlaces.splice(draggingIdx, 1)[0])
+    setDraggingIdx(idx)
+    setPlaces(newPlaces)
+  }
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>, idx: number) => {
+    e.preventDefault()
+    document.body.style.cursor = "default"
+    document.querySelectorAll(".drag-fallback").forEach((x) => x.remove())
+    setTzs(places.map((x) => x.uid))
+  }
+
   return (
     <main className="flex flex-col rounded-lg border bg-card text-card-content shadow">
       <div className="flex items-center gap-2.5 bg-body/30 px-4 py-2.5">
@@ -183,8 +226,16 @@ const Main: FC = () => {
           style={line}
         ></div>
 
-        {places.map((x) => (
-          <Timeline key={x.uid} place={x} />
+        {places.map((x, idx) => (
+          <div
+            key={x.uid}
+            draggable
+            onDragStart={(e) => handleDragStart(e, idx)}
+            onDragOver={(e) => handleDragOver(e, idx)}
+            onDragEnd={(e) => handleDragEnd(e, idx)}
+          >
+            <Timeline place={x} />
+          </div>
         ))}
       </div>
     </main>
