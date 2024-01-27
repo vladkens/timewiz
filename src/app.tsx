@@ -196,7 +196,7 @@ const Main: FC = () => {
     setPlaces(newPlaces)
   }
 
-  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>, idx: number) => {
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>, _: number) => {
     e.preventDefault()
     document.body.style.cursor = "default"
     document.querySelectorAll(".drag-fallback").forEach((x) => x.remove())
