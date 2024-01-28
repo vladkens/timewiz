@@ -3,16 +3,16 @@ import { DateTime } from "luxon"
 import _records from "./geonames.json"
 
 type Brand<T, BrandT> = T & { _type: BrandT }
-export type GeoId = Brand<number, "GeoId">
+export type PlaceId = Brand<number, "PlaceId">
 
 const records = _records as {
   timezones: string[]
   countries: [string, string, string][]
-  cities: [GeoId, string, number, number][]
+  cities: [PlaceId, string, number, number][]
 }
 
-export type GeoName = {
-  uid: GeoId
+export type Place = {
+  uid: PlaceId
   timeZone: string
   hourCycle: "h12" | "h24"
   countryCode: string
@@ -48,12 +48,12 @@ const prepare = () => {
 
   const places = records.cities.map((record) => {
     try {
-      const uid = record[0] as GeoId
+      const uid = record[0] as PlaceId
       const city = record[1]
       const timeZone = timezonesMap[record[2]]
       const { code: countryCode, name: country, locale } = countriesMap[record[3]]
       const hourCycle = getHourCycle(timeZone, locale)
-      return { uid, countryCode, timeZone, country, city, hourCycle } satisfies GeoName
+      return { uid, countryCode, timeZone, country, city, hourCycle } satisfies Place
     } catch (e) {
       console.log(`Error parsing geoname: ${record}`)
       return null
@@ -63,22 +63,24 @@ const prepare = () => {
   return filterNullable(places)
 }
 
-const geoNames = prepare()
-const byId = geoNames.reduce(
+const Places = prepare()
+
+const byId = Places.reduce(
   (acc, val) => Object.assign(acc, { [val.uid]: val }),
-  {} as Record<GeoName["uid"], GeoName>,
+  {} as Record<Place["uid"], Place>,
 )
 
-export const getGeoNames = () => geoNames
-export const getGeoNameById = (id: GeoName["uid"]) => byId[id]
+export const getPlaces = () => Places
 
-export const getSystemGeoName = () => {
+export const getPlaceById = (id: Place["uid"]) => (id in byId ? byId[id] : null)
+
+export const getSystemPlace = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
 
-  const zones = geoNames.filter((x) => x.timeZone === timeZone)
+  const zones = Places.filter((x) => x.timeZone === timeZone)
   if (zones.length) {
     return zones[0]
   }
 
-  return geoNames.find((x) => x.timeZone === "Europe/London")!
+  return Places.find((x) => x.timeZone === "Europe/London")!
 }

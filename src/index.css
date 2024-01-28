@@ -33,6 +33,10 @@
   body {
     @apply bg-body text-body-content;
   }
+
+  [data-drag-node] {
+    @apply cursor-move;
+  }
 }
 
 .animate-tick {

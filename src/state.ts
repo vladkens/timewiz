@@ -2,16 +2,20 @@ import { atom, useAtomValue, useSetAtom } from "jotai"
 import { uniq } from "lodash-es"
 import { DateTime } from "luxon"
 import { atomWithStorageSync } from "./utils/atomWithStorageSync"
-import { GeoId, GeoName, getGeoNameById, getSystemGeoName } from "./utils/geonames"
+import { Place, PlaceId, getPlaceById, getSystemPlace } from "./utils/geonames"
 
-const systemTimeZone = getSystemGeoName().uid
-const defaults = uniq([systemTimeZone, 5128581, 2643743, 1275339]) as GeoId[] // NYC, London, Mumbai
+const systemTimeZone = getSystemPlace().uid
+const defaults = uniq([systemTimeZone, 5128581, 2643743, 1275339]) as PlaceId[] // NYC, London, Mumbai
 
-export const TzListState = atomWithStorageSync<GeoId[]>("tzList", defaults)
-export const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
-export const TzModeState = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
+export const ClockView = atomWithStorageSync<"12" | "24" | "MX">("tzMode", "MX")
+export const TzListState = atomWithStorageSync<PlaceId[]>("tzList", defaults)
 
-const HomePlace = atom((get) => getGeoNameById(get(TzHomeState)))
+const TzHomeState = atomWithStorageSync("tzHome", systemTimeZone)
+
+const HomePlace = atom((get) => {
+  const place = getPlaceById(get(TzHomeState))
+  return place ?? getSystemPlace()
+})
 
 // Date control
 
@@ -43,36 +47,34 @@ export const NextDays = atom((get) => {
 
 // hooks
 
-export const useSetHomeGeo = () => {
+export const useSetHomePlace = () => {
   const setHome = useSetAtom(TzHomeState)
   const setDate = useSetAtom(CustomDate)
 
-  return (id: GeoId) => {
-    // const tt = DateTime.now().setZone(getGeoNameById(id).timeZone)
-    // setDate(tt.toISODate()!)
+  return (id: PlaceId) => {
     setHome(id)
     setDate(null)
   }
 }
 
-export const useGetHomeGeo = () => {
+export const useGetHomePlace = () => {
   return useAtomValue(HomePlace)
 }
 
-export const useIsHomeGeo = (left: GeoName) => {
+export const useIsHomePlace = (left: Place) => {
   const home = useAtomValue(HomePlace)
   return home.uid === left.uid
 }
 
-export const useGetOffsetFromHome = (left: GeoName) => {
+export const useGetOffsetFromHome = (left: Place) => {
   const home = useAtomValue(HomePlace)
   const d1 = DateTime.now().setZone(home.timeZone)
   const d2 = DateTime.now().setZone(left.timeZone)
   return d2.offset - d1.offset
 }
 
-export const useGetHourCycle = (place: GeoName): "h12" | "h24" => {
-  const mode = useAtomValue(TzModeState)
+export const useGetHourCycle = (place: Place): "h12" | "h24" => {
+  const mode = useAtomValue(ClockView)
   if (mode === "12") return "h12"
   if (mode === "24") return "h24"
   return place.hourCycle // "MX"

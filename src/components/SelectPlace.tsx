@@ -1,19 +1,20 @@
 import clsx from "clsx"
 import Fuse from "fuse.js"
-import { FC, useEffect, useState } from "react"
-import { GeoName, getGeoNames } from "../utils/geonames"
+import { FC, useEffect, useRef, useState } from "react"
+import { useOnClickOutside } from "../hooks/useOnClickOutside"
+import { Place, getPlaces } from "../utils/geonames"
 
 type SelectPlaceProps = {
-  values: GeoName[]
-  onChange: (place: GeoName) => void
+  values: Place[]
+  onChange: (value: Place) => void
 }
 
 export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
   const [value, setValue] = useState("")
-  const [options, setOptions] = useState<GeoName[]>([])
+  const [options, setOptions] = useState<Place[]>([])
   const [cursorIndex, setCursorIndex] = useState<number>(0)
 
-  const handleSelect = (tz: GeoName) => {
+  const handleSelect = (tz: Place) => {
     onChange(tz)
     setValue("")
   }
@@ -21,7 +22,7 @@ export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
   useEffect(() => {
     setCursorIndex(0)
 
-    const fuse = new Fuse(getGeoNames(), { threshold: 0.2, keys: ["country", "city"] })
+    const fuse = new Fuse(getPlaces(), { threshold: 0.2, keys: ["country", "city"] })
     const options = (value.length > 0 ? fuse.search(value).map((x) => x.item) : [])
       .filter((x) => !values.find((y) => y.uid === x.uid))
       .slice(0, 7)
@@ -56,8 +57,11 @@ export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
     return () => document.removeEventListener("keydown", handler)
   }, [options, cursorIndex])
 
+  const ref = useRef<HTMLDivElement>(null)
+  useOnClickOutside(ref, () => setValue(""))
+
   return (
-    <div className="relative w-full">
+    <div ref={ref} className="relative w-full">
       <input
         type="text"
         placeholder="Enter place or timezone"
