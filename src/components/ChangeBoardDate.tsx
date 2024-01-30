@@ -1,14 +1,14 @@
 import clsx from "clsx"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { FC } from "react"
-import { NextDays, useSetDate } from "../state"
+import { ComputedDays, SelectedDate } from "../store"
 
 export const ChangeBoardDate: FC = () => {
-  const setDate = useSetDate()
-  const dates = useAtomValue(NextDays)
+  const setDate = useSetAtom(SelectedDate)
+  const dates = useAtomValue(ComputedDays)
 
   return (
-    <div className="flex grow flex-row items-center gap-1">
+    <div className="flex grow items-center gap-1">
       {dates.map((x) => (
         <button
           key={x.date}

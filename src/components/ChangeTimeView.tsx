@@ -1,10 +1,10 @@
 import clsx from "clsx"
 import { useAtom } from "jotai"
 import { FC } from "react"
-import { ClockView } from "../state"
+import { ClockMode } from "../store"
 
 export const ChangeTimeView: FC = () => {
-  const [value, setValue] = useAtom(ClockView)
+  const [value, setValue] = useAtom(ClockMode)
 
   const buttons: { value: typeof value; text: string; cls: string }[] = [
     { value: "12" as const, text: "am\npm", cls: "text-[10px]" },

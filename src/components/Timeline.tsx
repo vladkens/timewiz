@@ -1,16 +1,15 @@
 import clsx from "clsx"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useEffect, useReducer } from "react"
 import {
-  SelectedDate,
-  TzListState,
-  useGetHomePlace,
+  ActiveTab,
+  ComputedDate,
   useGetHourCycle,
-  useGetOffsetFromHome,
-  useIsHomePlace,
-  useSetHomePlace,
-} from "../state"
+  useIsHome,
+  useMutateTab,
+  useOffsetFromHome,
+} from "../store"
 import { Place } from "../utils/geonames"
 
 const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
@@ -35,7 +34,7 @@ const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }
           {date.minute === 0 ? (
             date.hour
           ) : (
-            <div className="flex flex-row items-end">
+            <div className="flex items-end">
               <div className="">{hh}</div>
               <div className="text-[8px]">{mm}</div>
             </div>
@@ -63,9 +62,10 @@ const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }
 }
 
 const useGetTimeline = (place: Place) => {
-  const home = useGetHomePlace()
+  const { home } = useAtomValue(ActiveTab)
+
   const mode = useGetHourCycle(place)
-  const date = useAtomValue(SelectedDate)
+  const date = useAtomValue(ComputedDate)
 
   const ss = DateTime.fromISO(date, { zone: home.timeZone }).setZone(place.timeZone)
   const dd = DateTime.now().setZone(place.timeZone)
@@ -99,7 +99,7 @@ const useGetTimeline = (place: Place) => {
 }
 
 const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
-  const dt = useGetOffsetFromHome(place)
+  const dt = useOffsetFromHome(place)
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
 
@@ -125,8 +125,8 @@ const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
 }
 
 const Clock: FC<{ place: Place }> = ({ place }) => {
-  const setHome = useSetHomePlace()
-  const isHome = useIsHomePlace(place)
+  const { setHome } = useMutateTab()
+  const isHome = useIsHome(place)
   const mode = useGetHourCycle(place)
   const [_, rerender] = useReducer((x) => x + 1, 0)
 
@@ -163,9 +163,9 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
 
 const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
   return (
-    <div className="flex max-w-[228px] grow flex-row items-center gap-2 text-sm leading-none">
+    <div className="flex max-w-[228px] grow items-center gap-2 text-sm leading-none">
       <div className="flex grow flex-col" data-drag-node>
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex items-center gap-2">
           <div className="max-w-[160px] truncate text-ellipsis text-nowrap">{place.city}</div>
           <PlaceOffset place={place} />
         </div>
@@ -181,8 +181,8 @@ const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
 }
 
 export const Timeline: FC<{ place: Place }> = ({ place }) => {
-  const setTzList = useSetAtom(TzListState)
-  const isHome = useIsHomePlace(place)
+  const { delPlace } = useMutateTab()
+  const isHome = useIsHome(place)
   const hours = useGetTimeline(place)
 
   return (
@@ -191,7 +191,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/30"
     >
       <button
-        onClick={() => setTzList((old) => old.filter((x) => x !== place.uid))}
+        onClick={() => delPlace(place.uid)}
         disabled={isHome}
         className={clsx(
           "absolute ml-[-56px] h-[32px] w-[32px]",
@@ -204,7 +204,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
 
       <PlaceInfo place={place} />
 
-      <div className="flex h-[44px] shrink-0 select-none flex-row items-center" data-home={isHome}>
+      <div className="flex h-[44px] shrink-0 select-none items-center" data-home={isHome}>
         {hours.map((x, idx) => (
           <div
             key={idx}

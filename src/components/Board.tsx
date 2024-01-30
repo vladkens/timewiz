@@ -1,19 +1,18 @@
-import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { useInteraction } from "../hooks/useInteraction"
 import { useOnClickOutside } from "../hooks/useOnClickOutside"
-import { SelectedDate, TzListState, useGetHomePlace } from "../state"
-import { Place, getPlaceById } from "../utils/geonames"
+import { ActiveTab, ComputedDate, useMutateTab } from "../store"
+import { Place } from "../utils/geonames"
 import { Timeline } from "./Timeline"
 
 export const Board: FC = () => {
-  const [tzs, setTzs] = useAtom(TzListState)
-  const [places, setPlaces] = useState<Place[]>([])
+  const { reorderPlaces } = useMutateTab()
+  const { places: rawPlaces } = useAtomValue(ActiveTab)
+  const [ordered, setOrdered] = useState<Place[]>([])
 
-  const home = useGetHomePlace()
-  const date = useAtomValue(SelectedDate)
+  const date = useAtomValue(ComputedDate)
 
   const [line, setLine] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
   const [holdOn, setHoldOn] = useState<string | null>(null)
@@ -59,7 +58,7 @@ export const Board: FC = () => {
   }
 
   useEffect(() => {
-    setPlaces(filterNullable(tzs.map((x) => getPlaceById(x))))
+    setOrdered([...rawPlaces])
 
     Array.from(document.querySelectorAll(".animate-tick"))
       .flatMap((x) => x.getAnimations())
@@ -67,12 +66,12 @@ export const Board: FC = () => {
         x.cancel()
         x.play()
       })
-  }, [tzs])
+  }, [rawPlaces])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => calcLine(), 1)
     return () => clearTimeout(timeoutId)
-  }, [home, date, tzs])
+  }, [date, rawPlaces])
 
   useInteraction(ref, {
     start(e) {
@@ -116,7 +115,7 @@ export const Board: FC = () => {
         cc.removeAttribute("data-dragging")
         cc.style.visibility = "visible"
 
-        setTzs(places.map((x) => x.uid))
+        reorderPlaces(ordered.map((x) => x.uid))
         return
       }
 
@@ -143,10 +142,12 @@ export const Board: FC = () => {
         const idx = getDragIndex(e)
         if (idx === -1) return
 
-        let items = [...places]
-        items.splice(idx, 0, items.splice(dragIdx, 1)[0])
         setDragIdx(idx)
-        setPlaces(items)
+        setOrdered((old) => {
+          let now = [...old]
+          now.splice(idx, 0, now.splice(dragIdx, 1)[0])
+          return now
+        })
         return
       }
 
@@ -182,7 +183,7 @@ export const Board: FC = () => {
         )}
       ></div>
 
-      {places.map((x) => (
+      {ordered.map((x) => (
         <Timeline key={x.uid} place={x} />
       ))}
     </div>
