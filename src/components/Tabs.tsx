@@ -46,7 +46,7 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
       onClick={() => click()}
       className={clsx(
         "flex h-[32px] select-none items-center justify-between gap-1.5 border-t-2 border-transparent",
-        canDelete ? "pl-2 pr-1" : "px-2",
+        canDelete ? "pl-4 pr-1" : "px-4",
         !tab.isActive && "cursor-pointer",
         tab.isActive && "border-blue-500 bg-body/50",
       )}
@@ -89,7 +89,7 @@ export const Tabs: FC = () => {
     <div className="flex items-center rounded-lg text-sm leading-none">
       <div className="flex flex-wrap">
         {tabs.map((x) => (
-          <Tab key={x.id} tab={x} canDelete={tabs.length > 0} />
+          <Tab key={x.id} tab={x} canDelete={tabs.length > 1} />
         ))}
       </div>
 
