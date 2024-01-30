@@ -203,4 +203,5 @@ export const useGetHourCycle = (place: Place): "h12" | "h24" => {
 
 // General: Theme
 
-export const ThemeStore = atomWithStorage<"light" | "dark">("theme", "light")
+type Theme = "light" | "dark"
+export const ThemeStore = atomWithStorage<Theme>("theme", "light", undefined, { getOnInit: true })

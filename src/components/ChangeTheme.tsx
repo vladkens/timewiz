@@ -8,8 +8,9 @@ export const ChangeTheme: FC = () => {
   const isDark = theme === "dark"
 
   useEffect(() => {
-    document.body.classList.toggle("dark", isDark)
-  }, [theme])
+    if (isDark) document.body.classList.add("dark")
+    else document.body.classList.remove("dark")
+  }, [isDark])
 
   const Icon = isDark ? SunIcon : MoonIcon
 
