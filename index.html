@@ -7,11 +7,12 @@
     <title>w-time</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
     <script>
-      const isDark = localStorage.getItem("dark") === "true"
+      const isDark = localStorage.getItem("theme") === "dark"
       document.body.classList.toggle("dark", isDark)
     </script>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

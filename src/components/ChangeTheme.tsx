@@ -1,20 +1,20 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
-import { FC, useState } from "react"
+import { useAtom } from "jotai"
+import { FC, useEffect } from "react"
+import { ThemeStore } from "../store"
 
 export const ChangeTheme: FC = () => {
-  const [dark, setDark] = useState(() => localStorage.getItem("dark") === "true")
+  const [theme, setTheme] = useAtom(ThemeStore)
+  const isDark = theme === "dark"
 
-  const change = () => {
-    const isDark = !document.body.classList.contains("dark")
+  useEffect(() => {
     document.body.classList.toggle("dark", isDark)
-    localStorage.setItem("dark", isDark.toString())
-    setDark(isDark)
-  }
+  }, [theme])
 
-  const Icon = dark ? SunIcon : MoonIcon
+  const Icon = isDark ? SunIcon : MoonIcon
 
   return (
-    <button onClick={change}>
+    <button onClick={() => setTheme(isDark ? "light" : "dark")}>
       <Icon className="h-5 w-5 hover:text-blue-500 dark:hover:text-yellow-500" />
     </button>
   )

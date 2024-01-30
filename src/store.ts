@@ -200,3 +200,7 @@ export const useGetHourCycle = (place: Place): "h12" | "h24" => {
   if (mode === "24") return "h24"
   return place.hourCycle // default for given place (mode=MX)
 }
+
+// General: Theme
+
+export const ThemeStore = atomWithStorage<"light" | "dark">("theme", "light")
