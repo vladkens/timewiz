@@ -30,7 +30,7 @@ const Main: FC = () => {
     const tab = decodeShareUrl(window.location.search)
     if (tab) {
       exportTab(tab)
-      window.history.replaceState({}, "", "/")
+      window.history.replaceState({}, "", window.location.pathname)
     }
   }, [])
 
