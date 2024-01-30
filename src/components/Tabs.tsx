@@ -45,10 +45,10 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
       ref={ref}
       onClick={() => click()}
       className={clsx(
-        "flex h-[32px] select-none items-center justify-between gap-1.5",
+        "flex h-[32px] select-none items-center justify-between gap-1.5 border-t-2 border-transparent",
         canDelete ? "pl-2 pr-1" : "px-2",
         !tab.isActive && "cursor-pointer",
-        tab.isActive && "bg-body/50",
+        tab.isActive && "border-blue-500 bg-body/50",
       )}
     >
       <div className="min-w-[48px] grow">
