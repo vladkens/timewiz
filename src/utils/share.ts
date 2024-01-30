@@ -12,7 +12,7 @@ export const encodeShareUrl = (tab: AtomValue<typeof ActiveTab>) => {
   params.set("p", tab.places.map((x) => x.uid.toString(Base)).join("-"))
   params.set("h", tab.home.uid.toString(Base))
   params.set("i", tab.id.toString(Base))
-  return `${window.location.origin}/?${params.toString()}`
+  return `${window.location.href}?${params.toString()}`
 }
 
 export const decodeShareUrl = (url: string): TabDto | null => {
