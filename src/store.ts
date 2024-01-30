@@ -29,7 +29,9 @@ const getInitialStore = (): TabDto[] => {
   return [{ id: Date.now(), places: places.map((id) => ({ id })), home: places[0], name: "Home" }]
 }
 
-const TabsStore = atomWithStorage<TabDto[]>("tabs-store", getInitialStore())
+const TabsStore = atomWithStorage<TabDto[]>("tabs-store", getInitialStore(), undefined, {
+  getOnInit: true,
+})
 
 /**
  * Live state
@@ -46,7 +48,7 @@ const TabsState = atom((get) => {
 })
 
 // prettier-ignore
-const ActiveTabId_ = atomWithStorage("active-tab", -1, createJSONStorage(() => sessionStorage))
+const ActiveTabId_ = atomWithStorage("active-tab", -1, createJSONStorage(() => sessionStorage), { getOnInit: true })
 
 const ActiveTabId = atom((get) => {
   const tabs = get(TabsState)
