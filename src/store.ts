@@ -16,7 +16,7 @@ const recreateStorage = (msg: string) => {
  * Persisted store
  */
 
-type TabDto = {
+export type TabDto = {
   id: number
   places: { id: PlaceId; name?: string }[]
   home: PlaceId
@@ -97,7 +97,17 @@ export const useMutateTabs = () => {
     set((tabs) => tabs.map((tab) => (tab.id === id ? { ...tab, name } : tab)))
   }
 
-  return { addTab, delTab, setActive, setName }
+  const exportTab = (tab: TabDto) => {
+    set((tabs) => {
+      const ids = tabs.map((x) => x.id)
+      if (ids.includes(tab.id)) return tabs
+
+      setTimeout(() => setActive(tab.id), 1)
+      return [...tabs, tab]
+    })
+  }
+
+  return { addTab, delTab, setActive, setName, exportTab }
 }
 
 // Active Tab

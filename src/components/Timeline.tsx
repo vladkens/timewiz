@@ -156,7 +156,9 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
       {mode === "h12" ? time.hour % 12 || 12 : pad(time.hour)}
       <span className="animate-tick">:</span>
       {pad(time.minute)}
-      {mode === "h12" && <>&nbsp;{time.hour < 12 ? "AM" : "PM"}</>}
+      {mode === "h12" && (
+        <span className="ml-1 text-[12px] tracking-normal">{time.hour < 12 ? "AM" : "PM"}</span>
+      )}
     </button>
   )
 }

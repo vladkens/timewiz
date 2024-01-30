@@ -1,8 +1,33 @@
 import clsx from "clsx"
 import Fuse from "fuse.js"
-import { FC, useEffect, useRef, useState } from "react"
-import { useOnClickOutside } from "../hooks/useOnClickOutside"
+import { DateTime } from "luxon"
+import { FC, useEffect, useReducer, useRef, useState } from "react"
+import { useGetHourCycle } from "../store"
 import { Place, getPlaces } from "../utils/geonames"
+import { useOnClickOutside } from "../utils/useOnClickOutside"
+
+const Clock: FC<{ place: Place }> = ({ place }) => {
+  const mode = useGetHourCycle(place)
+
+  const [_, rerender] = useReducer((x) => x + 1, 0)
+
+  const time = DateTime.now().setZone(place.timeZone)
+  const pad = (x: number) => x.toString().padStart(2, "0")
+
+  useEffect(() => {
+    const interval = setInterval(() => rerender(), 1000)
+    return () => clearInterval(interval)
+  }, [mode])
+
+  return (
+    <div className="rounded border bg-card/50 px-1 py-0.5 font-mono text-[11px]">
+      {mode === "h12" ? time.hour % 12 || 12 : pad(time.hour)}:{pad(time.minute)}
+      {mode === "h12" && (
+        <span className="ml-1 text-[12px] tracking-normal">{time.hour < 12 ? "AM" : "PM"}</span>
+      )}
+    </div>
+  )
+}
 
 type SelectPlaceProps = {
   values: Place[]
@@ -89,7 +114,7 @@ export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
               <div className="line-clamp-1 grow text-left">
                 {x.city}, {x.country}
               </div>
-              {/* <div className="shrink-0">{x.abbreviation}</div> */}
+              <Clock place={x} />
             </button>
           ))}
         </div>

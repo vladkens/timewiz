@@ -1,8 +1,8 @@
-import { PlusIcon, XMarkIcon } from "@heroicons/react/16/solid"
+import { PlusIcon } from "@heroicons/react/16/solid"
 import clsx from "clsx"
 import { FC, useEffect, useRef, useState } from "react"
-import { useOnClickOutside } from "../hooks/useOnClickOutside"
 import { useGetTabsList, useMutateTabs } from "../store"
+import { useOnClickOutside } from "../utils/useOnClickOutside"
 
 type TabDto = ReturnType<typeof useGetTabsList>[0]
 
@@ -68,9 +68,13 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
         <button
           onClick={() => delTab(tab.id)}
           disabled={!canDelete}
-          className={clsx("flex items-center rounded-full hover:text-red-500")}
+          className={clsx(
+            "flex h-[17px] w-[17px] items-center justify-center rounded-full font-mono text-[15px]",
+            "text-card-content/50 hover:bg-gray-500/30 hover:text-red-500",
+            "transition-colors",
+          )}
         >
-          <XMarkIcon className="h-4 w-4" />
+          &times;
         </button>
       )}
     </div>
@@ -82,7 +86,7 @@ export const Tabs: FC = () => {
   const { addTab } = useMutateTabs()
 
   return (
-    <div className="flex items-center text-sm leading-none">
+    <div className="flex items-center rounded-lg text-sm leading-none">
       <div className="flex flex-wrap">
         {tabs.map((x) => (
           <Tab key={x.id} tab={x} canDelete={tabs.length > 0} />
@@ -92,7 +96,10 @@ export const Tabs: FC = () => {
       <button
         key="add"
         onClick={addTab}
-        className="mx-1 flex h-6 w-6 items-center justify-center rounded-full hover:bg-gray-200"
+        className={clsx(
+          "mx-1 flex h-6 w-6 items-center justify-center rounded-full hover:bg-gray-200",
+          "transition-colors",
+        )}
       >
         <PlusIcon className="h-5 w-5" />
       </button>

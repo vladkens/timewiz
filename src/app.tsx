@@ -1,12 +1,13 @@
 import { Provider, useAtomValue } from "jotai"
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import { Board } from "./components/Board"
 import { ChangeBoardDate } from "./components/ChangeBoardDate"
 import { ChangeTheme } from "./components/ChangeTheme"
 import { ChangeTimeView } from "./components/ChangeTimeView"
 import { SelectPlace } from "./components/SelectPlace"
 import { Tabs } from "./components/Tabs"
-import { ActiveTab, useMutateTab } from "./store"
+import { ActiveTab, useMutateTab, useMutateTabs } from "./store"
+import { decodeShareUrl } from "./utils/share"
 
 const Head: FC = () => {
   return (
@@ -21,11 +22,20 @@ const Head: FC = () => {
 }
 
 const Main: FC = () => {
+  const { exportTab } = useMutateTabs()
   const { addPlace } = useMutateTab()
   const { places } = useAtomValue(ActiveTab)
 
+  useEffect(() => {
+    const tab = decodeShareUrl(window.location.search)
+    if (tab) {
+      exportTab(tab)
+      window.history.replaceState({}, "", "/")
+    }
+  }, [])
+
   return (
-    <main className="flex flex-col overflow-hidden rounded-lg bg-card text-card-content">
+    <main className="flex flex-col rounded-lg bg-card text-card-content">
       <Tabs />
 
       <div className="flex items-center gap-2.5 bg-body/30 px-4 py-2.5">

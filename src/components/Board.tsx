@@ -1,10 +1,10 @@
 import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
-import { useInteraction } from "../hooks/useInteraction"
-import { useOnClickOutside } from "../hooks/useOnClickOutside"
 import { ActiveTab, ComputedDate, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
+import { useInteraction } from "../utils/useInteraction"
+import { useOnClickOutside } from "../utils/useOnClickOutside"
 import { Timeline } from "./Timeline"
 
 export const Board: FC = () => {

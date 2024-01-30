@@ -109,7 +109,6 @@ def main():
     MIN_POPULATION = 80_000
 
     cities = get_cities()
-    # cities = [x for x in cities if x.population >= 100_000]
     cities = sorted(cities, key=lambda x: x.population, reverse=True)
 
     timezones = list(set([x.timezone for x in cities]))
