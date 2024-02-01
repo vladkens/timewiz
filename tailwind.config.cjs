@@ -18,6 +18,8 @@ export default {
           DEFAULT: fromVar("card"),
           content: fromVar("card-content"),
         },
+        border: fromVar("border"),
+        primary: fromVar("primary"),
       },
     },
   },

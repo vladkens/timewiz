@@ -15,23 +15,27 @@
     --body-content: theme(colors.zinc.900);
     --card: theme(colors.white);
     --card-content: theme(colors.zinc.900);
+    --border: theme(colors.zinc.200);
+    --primary: theme(colors.orange.500);
   }
 
   .dark {
-    --body: theme(colors.black);
+    --body: theme(colors.stone.950);
     --body-content: theme(colors.stone.300);
-    --card: theme(colors.stone.900);
+    --card: theme(colors.stone.800);
     --card-content: theme(colors.stone.300);
+    --border: theme(colors.stone.800);
+    --primary: theme(colors.orange.500);
   }
 }
 
 @layer base {
   * {
-    @apply border-white dark:border-stone-700;
+    @apply border-border;
   }
 
   body {
-    @apply bg-body text-body-content;
+    @apply !bg-body text-body-content;
   }
 
   [data-drag-node] {

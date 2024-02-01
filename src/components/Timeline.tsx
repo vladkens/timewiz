@@ -163,25 +163,6 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
   )
 }
 
-const PlaceInfo: FC<{ place: Place }> = ({ place }) => {
-  return (
-    <div className="flex max-w-[228px] grow items-center gap-2 text-sm leading-none">
-      <div className="flex grow flex-col" data-drag-node>
-        <div className="flex items-center gap-2">
-          <div className="max-w-[160px] truncate text-ellipsis text-nowrap">{place.city}</div>
-          <PlaceOffset place={place} />
-        </div>
-        <div className="text-xs">{place.country}</div>
-      </div>
-
-      <div className="flex shrink-0 flex-col items-end font-mono text-[15px]">
-        <Clock place={place} />
-        {/* <PlaceOffset place={place} /> */}
-      </div>
-    </div>
-  )
-}
-
 export const Timeline: FC<{ place: Place }> = ({ place }) => {
   const { delPlace } = useMutateTab()
   const isHome = useIsHome(place)
@@ -204,23 +185,37 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
         {isHome ? "🏠" : <>&times;</>}
       </button>
 
-      <PlaceInfo place={place} />
+      <div className="flex w-[212px] shrink-0 items-center gap-2 text-sm leading-none">
+        <div className="flex grow flex-col" data-drag-node>
+          <div className="flex items-center gap-2">
+            <div className="max-w-[160px] truncate text-ellipsis text-nowrap">{place.city}</div>
+            <PlaceOffset place={place} />
+          </div>
+          <div className="text-xs">{place.country}</div>
+        </div>
 
-      <div className="flex h-[44px] shrink-0 select-none items-center" data-home={isHome}>
+        <div className="flex shrink-0 flex-col items-end font-mono text-[15px]">
+          <Clock place={place} />
+        </div>
+      </div>
+
+      <div className="flex h-[44px] select-none items-center" data-home={isHome}>
         {hours.map((x, idx) => (
           <div
             key={idx}
             data-current={x.isCurrent}
             data-datetime={x.datetime}
-            className="flex h-full items-center"
+            className="flex h-full w-[32px] items-center"
           >
             <div
               className={clsx(
-                "flex h-[32px] w-[32px] items-center justify-center dark:text-white/85",
+                "flex h-[32px] w-full items-center justify-center dark:text-white/85",
                 "border-b border-t border-gray-300 hover:bg-gray-200",
-                x.isDayStart && "w-[31px]! ml-[1px] rounded-l-md border-l",
-                x.isDayEnd && "w-[30px]! mr-[2px] rounded-r-md border-r",
                 "leadning-none text-center",
+                x.isDayStart && "rounded-l-md border-l",
+                x.isDayEnd && "rounded-r-md border-r",
+                x.isDayStart && idx > 0 && "ml-[1px]",
+                x.isDayEnd && idx < hours.length - 1 && "mr-[2px]",
                 x.className,
               )}
             >

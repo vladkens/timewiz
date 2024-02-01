@@ -14,7 +14,7 @@ export const Board: FC = () => {
 
   const date = useAtomValue(ComputedDate)
 
-  const [line, setLine] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
+  const [range, setRange] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
   const [holdOn, setHoldOn] = useState<string | null>(null)
   const [dragIdx, setDragIdx] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
@@ -34,7 +34,7 @@ export const Board: FC = () => {
   const calcLine = useCallback(() => {
     const cc = document.querySelector("[data-home=true] [data-current=true]")
     if (!ref.current || !cc) {
-      setLine((old) => ({ ...old, opacity: 0 }))
+      setRange((old) => ({ ...old, opacity: 0 }))
       return
     }
 
@@ -46,7 +46,7 @@ export const Board: FC = () => {
     if (!ref.current) return
     const rt = ref.current.getBoundingClientRect()
 
-    setLine((old) => ({
+    setRange((old) => ({
       ...old,
       opacity: 1,
       top: rt.height / 2,
@@ -174,18 +174,25 @@ export const Board: FC = () => {
 
   return (
     <div ref={ref} className="relative box-border flex flex-col border-t py-2">
+      {/* <div
+        style={{ height: range.height, top: range.top, left: range.left + 16 }}
+        className={clsx("pointer-events-none absolute z-[10] w-[1px] -translate-y-1/2 bg-white")}
+      ></div> */}
+
       <div
-        style={line}
+        style={range}
         className={clsx(
-          "pointer-events-none absolute z-[10] w-[32px] select-none rounded-md",
+          "pointer-events-none absolute z-[12] w-[32px] select-none rounded-md",
           "border-2 border-red-500/50 dark:border-red-500/80",
           "box-border -translate-y-1/2",
         )}
       ></div>
 
-      {ordered.map((x) => (
-        <Timeline key={x.uid} place={x} />
-      ))}
+      <div className="">
+        {ordered.map((x) => (
+          <Timeline key={x.uid} place={x} />
+        ))}
+      </div>
     </div>
   )
 }

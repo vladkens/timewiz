@@ -78,9 +78,7 @@ export const getSystemPlace = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
 
   const zones = Places.filter((x) => x.timeZone === timeZone)
-  if (zones.length) {
-    return zones[0]
-  }
+  if (zones.length) return zones[0]
 
   return Places.find((x) => x.timeZone === "Europe/London")!
 }
