@@ -1,8 +1,9 @@
 import clsx from "clsx"
 import Fuse from "fuse.js"
+import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useEffect, useReducer, useRef, useState } from "react"
-import { useGetHourCycle } from "../store"
+import { ActiveTab, useGetHourCycle, useMutateTab } from "../store"
 import { Place, getPlaces } from "../utils/geonames"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
 
@@ -29,18 +30,16 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
   )
 }
 
-type SelectPlaceProps = {
-  values: Place[]
-  onChange: (value: Place) => void
-}
+export const SelectPlace: FC = () => {
+  const { addPlace } = useMutateTab()
+  const { places: values } = useAtomValue(ActiveTab)
 
-export const SelectPlace: FC<SelectPlaceProps> = ({ values, onChange }) => {
   const [value, setValue] = useState("")
   const [options, setOptions] = useState<Place[]>([])
   const [cursorIndex, setCursorIndex] = useState<number>(0)
 
-  const handleSelect = (tz: Place) => {
-    onChange(tz)
+  const handleSelect = (place: Place) => {
+    addPlace(place.uid)
     setValue("")
   }
 

@@ -99,7 +99,7 @@ export const useMutateTabs = () => {
     set((tabs) => tabs.map((tab) => (tab.id === id ? { ...tab, name } : tab)))
   }
 
-  const exportTab = (tab: TabDto) => {
+  const importTab = (tab: TabDto) => {
     set((tabs) => {
       const ids = tabs.map((x) => x.id)
       if (ids.includes(tab.id)) return tabs
@@ -109,7 +109,7 @@ export const useMutateTabs = () => {
     })
   }
 
-  return { addTab, delTab, setActive, setName, exportTab }
+  return { addTab, delTab, setActive, setName, importTab }
 }
 
 // Active Tab

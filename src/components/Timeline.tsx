@@ -85,7 +85,7 @@ const useGetTimeline = (place: Place) => {
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,
-      datetime: `${tt.toISO()}-${place.uid}`,
+      datetime: `${tt.toISO()}~${place.uid}`,
       className: clsx(
         isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
         isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
@@ -171,7 +171,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
   return (
     <div
       data-drag-root
-      className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/30"
+      className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/50"
     >
       <button
         onClick={() => delPlace(place.uid)}
