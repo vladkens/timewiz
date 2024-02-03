@@ -1,4 +1,4 @@
-import { PlusIcon } from "@heroicons/react/16/solid"
+import { IconPlus } from "@tabler/icons-react"
 import clsx from "clsx"
 import { FC, useEffect, useRef, useState } from "react"
 import { useGetTabsList, useMutateTabs } from "../store"
@@ -101,7 +101,7 @@ export const Tabs: FC = () => {
           "transition-colors",
         )}
       >
-        <PlusIcon className="h-5 w-5" />
+        <IconPlus className="h-5 w-5" />
       </button>
     </div>
   )

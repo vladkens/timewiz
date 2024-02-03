@@ -1,4 +1,4 @@
-import { CheckIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline"
+import { IconCheck, IconCopy } from "@tabler/icons-react"
 import clsx from "clsx"
 import { FC, useEffect, useState } from "react"
 import { Button, ButtonProps } from "./Button"
@@ -27,7 +27,7 @@ export const ButtonCopy: FC<ButtonCopyProps> = (props) => {
     return () => clearTimeout(timer)
   }, [copied])
 
-  const Icon = copied ? CheckIcon : DocumentDuplicateIcon
+  const Icon = copied ? IconCheck : IconCopy
   const text = copied ? "Copied" : children
 
   return (

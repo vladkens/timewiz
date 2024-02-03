@@ -21,7 +21,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
   }, [mode])
 
   return (
-    <div className="rounded border bg-card/50 px-1 py-0.5 font-mono text-[11px]">
+    <div className="rounded border bg-body/50 px-1 py-0.5 font-mono text-[11px]">
       {mode === "h12" ? time.hour % 12 || 12 : pad(time.hour)}:{pad(time.minute)}
       {mode === "h12" && (
         <span className="ml-1 text-[12px] tracking-normal">{time.hour < 12 ? "AM" : "PM"}</span>

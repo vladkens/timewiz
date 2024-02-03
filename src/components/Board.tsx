@@ -1,9 +1,4 @@
-import {
-  ArrowDownTrayIcon,
-  CalendarDaysIcon,
-  ClockIcon,
-  EnvelopeIcon,
-} from "@heroicons/react/24/outline"
+import { IconCalendarEvent, IconClock, IconCloudDownload, IconMail } from "@tabler/icons-react"
 import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
@@ -48,7 +43,7 @@ const BoardSelectHead: FC<{ duration: DateRangeISO }> = ({ duration }) => {
   return (
     <div className="flex h-full w-full items-center gap-2.5 px-4 py-2">
       <div className="flex w-[212px] items-center justify-end gap-1">
-        <ClockIcon className="h-5 w-5" />
+        <IconClock className="h-5 w-5" />
         {ll}
       </div>
 
@@ -56,15 +51,12 @@ const BoardSelectHead: FC<{ duration: DateRangeISO }> = ({ duration }) => {
         <Button
           onClick={actions.toGoogleCalendar}
           size="sm"
-          leftSection={<CalendarDaysIcon className="h-4 w-4" />}
+          leftSection={<IconCalendarEvent className="h-4 w-4" />}
         >
           Google Calendar
         </Button>
-        <Button
-          onClick={actions.toEmail}
-          size="sm"
-          leftSection={<EnvelopeIcon className="h-4 w-4" />}
-        >
+
+        <Button onClick={actions.toEmail} size="sm" leftSection={<IconMail className="h-4 w-4" />}>
           Email
         </Button>
 
@@ -75,9 +67,9 @@ const BoardSelectHead: FC<{ duration: DateRangeISO }> = ({ duration }) => {
         <Button
           onClick={actions.toIcal}
           size="sm"
-          leftSection={<ArrowDownTrayIcon className="h-4 w-4" />}
+          leftSection={<IconCloudDownload className="h-4 w-4" />}
         >
-          iCal
+          iCal / ICS
         </Button>
       </div>
     </div>

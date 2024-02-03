@@ -12,12 +12,12 @@ import {
 } from "../store"
 import { Place } from "../utils/geonames"
 
-const getDayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
+const DayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
   const cls = "flex flex-col gap-0.5 uppercase leading-none"
 
   if (date.hour === 0) {
     return (
-      <div className={cls}>
+      <div className={clsx(cls, "font-medium")}>
         <div className="text-[8px]">{date.monthShort}</div>
         <div className="text-[12px]">{date.day}</div>
       </div>
@@ -75,13 +75,13 @@ const useGetTimeline = (place: Place) => {
     const tt = ss.plus({ hours: i })
     const hh = tt.hour
 
-    const isR = tt.isWeekend
+    const isR = tt.setLocale(place.locale).isWeekend
     const isG = !isR && hh >= 9 && hh <= 18
     const isY = !isR && [7, 8, 19, 20, 21].includes(hh)
     const isV = !isR && !isG && !isY
 
     items.push({
-      label: getDayLabel({ date: tt, mode }),
+      label: DayLabel({ date: tt, mode }),
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,

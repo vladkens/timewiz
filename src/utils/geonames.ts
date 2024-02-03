@@ -18,6 +18,7 @@ export type Place = {
   countryCode: string
   country: string
   city: string
+  locale: string
 }
 
 const getHourCycle = (zone: string, locale: string) => {
@@ -53,7 +54,7 @@ const prepare = () => {
       const timeZone = timezonesMap[record[2]]
       const { code: countryCode, name: country, locale } = countriesMap[record[3]]
       const hourCycle = getHourCycle(timeZone, locale)
-      return { uid, countryCode, timeZone, country, city, hourCycle } satisfies Place
+      return { uid, countryCode, timeZone, country, city, hourCycle, locale } satisfies Place
     } catch (e) {
       console.log(`Error parsing geoname: ${record}`)
       return null

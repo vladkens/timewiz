@@ -1,4 +1,4 @@
-import { MoonIcon, SunIcon } from "@heroicons/react/16/solid"
+import { IconMoon, IconSunFilled } from "@tabler/icons-react"
 import { useAtom } from "jotai"
 import { FC, useEffect } from "react"
 import { ThemeStore } from "../store"
@@ -12,7 +12,7 @@ export const ChangeTheme: FC = () => {
     else document.body.classList.remove("dark")
   }, [isDark])
 
-  const Icon = isDark ? SunIcon : MoonIcon
+  const Icon = isDark ? IconSunFilled : IconMoon
 
   return (
     <button onClick={() => setTheme(isDark ? "light" : "dark")}>
