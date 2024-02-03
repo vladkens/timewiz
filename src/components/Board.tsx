@@ -115,22 +115,9 @@ export const Board: FC = () => {
 
   const [range, setRange] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
   const [holdOn, setHoldOn] = useState<string | null>(null)
-  const [dragIdx, setDragIdx] = useState(0)
   const [duration, setDuration] = useState<DateRangeISO | null>(null)
   const timelinesRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-
-  const getDragIndex = (e: MouseEvent | TouchEvent) => {
-    const x = "clientX" in e ? e.clientX : e.touches[0].clientX
-    const y = "clientY" in e ? e.clientY : e.touches[0].clientY
-
-    const els = document.elementsFromPoint(x, y).filter((x) => x.hasAttribute("data-drag-root"))
-    if (!els.length) return -1
-
-    const all = Array.from(timelinesRef.current?.querySelectorAll("[data-drag-root]") ?? [])
-    const idx = all.indexOf(els[0])
-    return idx >= 0 ? idx : -1
-  }
 
   const calcLine = useCallback(() => {
     const cc = document.querySelector("[data-home=true] [data-current=true]")
@@ -180,13 +167,11 @@ export const Board: FC = () => {
 
   useInteraction(timelinesRef, {
     start(e) {
-      e.preventDefault()
       setHoldOn(null)
 
       const dn = (e.target as HTMLElement)?.closest("[data-drag-node]") as HTMLElement
       if (dn) {
         const dr = dn.closest("[data-drag-root]")! as HTMLElement
-        setDragIdx(getDragIndex(e)) // should be before invisibility
         dr.setAttribute("data-dragging", "true")
         dr.style.visibility = "hidden"
 
@@ -233,13 +218,18 @@ export const Board: FC = () => {
       if (cc) {
         e.preventDefault()
 
-        const idx = getDragIndex(e)
-        if (idx === -1) return
+        const x = "clientX" in e ? e.clientX : e.touches[0].clientX
+        const y = "clientY" in e ? e.clientY : e.touches[0].clientY
 
-        setDragIdx(idx)
+        const all = Array.from(timelinesRef.current?.querySelectorAll("[data-drag-root]") ?? [])
+        const els = document.elementsFromPoint(x, y).filter((x) => x.hasAttribute("data-drag-root"))
+        const wasIdx = all.indexOf(cc)
+        const nowIdx = all.indexOf(els[0])
+        if (wasIdx === nowIdx || wasIdx === -1 || nowIdx === -1) return
+
         setOrdered((old) => {
           let now = [...old]
-          now.splice(idx, 0, now.splice(dragIdx, 1)[0])
+          now.splice(nowIdx, 0, now.splice(wasIdx, 1)[0])
           return now
         })
         return

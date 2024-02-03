@@ -12,7 +12,7 @@ export const App: FC = () => {
   return (
     <Router>
       <Provider>
-        <div className="mx-auto w-[100vw] max-w-[1040px] px-2.5">
+        <div className="mx-auto w-[100vw] max-w-[1040px] px-2.5 pb-8">
           <Header />
 
           <Switch>
