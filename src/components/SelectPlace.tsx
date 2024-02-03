@@ -92,7 +92,7 @@ export const SelectPlace: FC = () => {
         value={value}
         onChange={(e) => setValue(e.target?.value ?? "")}
         className={clsx(
-          "h-[32px] w-full rounded border bg-card px-1.5 text-card-content",
+          "h-[28px] w-full rounded border bg-card px-1.5 text-card-content",
           "focus:border-blue-500 focus:outline-none focus:ring-1",
           "border-card-content/30 placeholder:text-sm",
         )}
@@ -106,7 +106,7 @@ export const SelectPlace: FC = () => {
               onMouseOver={() => setCursorIndex(idx)}
               className={clsx(
                 "flex w-full items-center justify-between gap-2.5",
-                "h-[32px] px-1.5 py-1 text-sm leading-none",
+                "h-[28px] px-1.5 py-1 text-sm leading-none",
                 idx === cursorIndex && "bg-card-content/30",
               )}
             >

@@ -7,14 +7,18 @@
 - https://daisyui.com/docs/colors/
 - https://github.com/saadeghi/daisyui/blob/master/src/theming/themes.js
 - https://www.radix-ui.com/colors
+- https://github.com/kiliman/shadcn-custom-theme
 */
 
 @layer base {
   :root {
-    --body: theme(colors.zinc.200);
+    --body: theme(colors.zinc.100);
     --body-content: theme(colors.zinc.900);
     --card: theme(colors.white);
     --card-content: theme(colors.zinc.900);
+    --rest: theme(colors.neutral.100);
+    --rest-content: theme(colors.neutral.500);
+
     --border: theme(colors.zinc.200);
     --primary: theme(colors.orange.500);
   }
@@ -24,8 +28,15 @@
     --body-content: theme(colors.stone.300);
     --card: theme(colors.stone.800);
     --card-content: theme(colors.stone.300);
+    --rest: theme(colors.neutral.700);
+    --rest-content: theme(colors.neutral.500);
+
     --border: theme(colors.stone.800);
     --primary: theme(colors.orange.500);
+
+    --body: #1f2020;
+    --card: #2b2b2b;
+    --border: #424242;
   }
 }
 

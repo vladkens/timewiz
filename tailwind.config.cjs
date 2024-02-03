@@ -18,6 +18,10 @@ export default {
           DEFAULT: fromVar("card"),
           content: fromVar("card-content"),
         },
+        rest: {
+          DEFAULT: fromVar("rest"),
+          content: fromVar("rest-content"),
+        },
         border: fromVar("border"),
         primary: fromVar("primary"),
       },

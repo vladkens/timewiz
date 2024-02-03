@@ -1,9 +1,15 @@
-import { IconCalendarEvent, IconClock, IconCloudDownload, IconMail } from "@tabler/icons-react"
+import {
+  IconCalendarEvent,
+  IconCalendarMonth,
+  IconClock,
+  IconCloudDownload,
+  IconMail,
+} from "@tabler/icons-react"
 import clsx from "clsx"
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
-import { ActiveTab, ComputedDate, useMutateTab } from "../store"
+import { ActiveTab, ComputedDate, SelectedDate, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
 import { useExportEvent } from "../utils/share"
 import { useInteraction } from "../utils/useInteraction"
@@ -13,15 +19,39 @@ import { SelectPlace } from "./SelectPlace"
 import { Timeline } from "./Timeline"
 import { Button } from "./ui/Button"
 import { ButtonCopy } from "./ui/ButtonCopy"
+import { ButtonIcon } from "./ui/ButtonIcon"
+import { DatePicker } from "./ui/DatePicker"
 
 type DateRangeISO = [string, string] // start, end date
 
 const BoardDefaultHead: FC = () => {
+  const [date, setDate] = useAtom(SelectedDate)
+  const [active, setActive] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const onDateChange = (value: string) => {
+    setDate(value)
+    setActive(false)
+  }
+
+  useOnClickOutside(ref, () => setActive(false))
+
   return (
     <div className="flex w-full items-center gap-2.5 px-4 py-2">
       <div className="w-[220px]">
         <SelectPlace />
       </div>
+
+      <div className="relative">
+        <ButtonIcon onClick={() => setActive(true)} icon={<IconCalendarMonth />} size="sm" />
+
+        {active && (
+          <div ref={ref} className="absolute z-[100] rounded border bg-card p-1">
+            <DatePicker value={date} onChange={onDateChange} />
+          </div>
+        )}
+      </div>
+
       <ChangeBoardDate />
     </div>
   )
