@@ -159,13 +159,6 @@ export const useIsHome = (left: Place) => {
   return home.uid === left.uid
 }
 
-export const useOffsetFromHome = (left: Place) => {
-  const { home } = useAtomValue(ActiveTab)
-  const d1 = DateTime.now().setZone(home.timeZone)
-  const d2 = DateTime.now().setZone(left.timeZone)
-  return d2.offset - d1.offset
-}
-
 // General: Selected Date
 
 const todayDate = (zone: string) => DateTime.now().setZone(zone).set({ hour: 0 })

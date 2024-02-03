@@ -1,15 +1,8 @@
 import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
-import { FC, useEffect, useReducer } from "react"
-import {
-  ActiveTab,
-  ComputedDate,
-  useGetHourCycle,
-  useIsHome,
-  useMutateTab,
-  useOffsetFromHome,
-} from "../store"
+import { FC, useEffect, useMemo, useReducer } from "react"
+import { ActiveTab, ComputedDate, useGetHourCycle, useIsHome, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
 
 const DayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
@@ -102,28 +95,63 @@ const useGetTimeline = (place: Place) => {
   return items
 }
 
-const PlaceOffset: FC<{ place: Place }> = ({ place }) => {
-  const dt = useOffsetFromHome(place)
+const PlaceOffset: FC<{ homeTz: string; leftTz: string }> = ({ homeTz, leftTz }) => {
+  const d1 = DateTime.now().setZone(homeTz)!
+  const d2 = DateTime.now().setZone(leftTz)!
+
+  const dt = d2.offset - d1.offset
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
 
-  if (hh === 0 && mm === 0) return <div className="invisible">12</div>
-
   // prettier-ignore
   const items = [{ v: Math.abs(hh), u: "h" },{ v: Math.abs(mm), u: "m" }]
-  const label = `${dt < 0 ? "-" : "+"}${items
+  const label = `${items
     .filter((x) => x.v !== 0)
     .map((x) => `${x.v}${x.u}`)
     .join(" ")}`
 
+  let tzLabel = d2.toFormat("ZZZZ")
+  if (tzLabel.includes("GMT")) tzLabel = ""
+
+  let day = d2.day !== d1.day ? `${d2.monthShort} ${d2.day}` : ""
+
   return (
     <div
       className={clsx(
-        "whitespace-nowrap text-xs tracking-tighter",
-        dt < 0 ? "text-red-600" : "text-green-600",
+        "flex items-center gap-1 text-card-content/50",
+        "text-[11px] leading-none tracking-tighter",
       )}
     >
-      {label}
+      {`${d2.toFormat("ZZ").replace(":00", "")}`}
+
+      {tzLabel.length > 0 && (
+        <>
+          <span>·</span>
+          <span>{tzLabel}</span>
+        </>
+      )}
+
+      {label.length > 0 && (
+        <>
+          <span>·</span>
+          <span
+            className={clsx(
+              "bg-rest/50 text-nowrap rounded-lg border px-1 py-0.5",
+              dt > 0 ? "text-green-500" : "text-red-500",
+            )}
+          >
+            {dt < 0 ? "-" : "+"}
+            {label}
+          </span>
+        </>
+      )}
+
+      {day.length > 0 && (
+        <>
+          <span>·</span>
+          <span className="text-nowrap text-red-500">{day}</span>
+        </>
+      )}
     </div>
   )
 }
@@ -169,8 +197,13 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
 
 export const Timeline: FC<{ place: Place }> = ({ place }) => {
   const { delPlace } = useMutateTab()
+  const { home } = useAtomValue(ActiveTab)
   const isHome = useIsHome(place)
   const hours = useGetTimeline(place)
+
+  const secondLine = useMemo(() => {
+    return <PlaceOffset homeTz={home.timeZone} leftTz={place.timeZone} />
+  }, [home.timeZone, place.timeZone])
 
   return (
     <div
@@ -190,12 +223,13 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       </button>
 
       <div className="flex w-[212px] shrink-0 items-center gap-2 text-sm leading-none">
-        <div className="flex grow flex-col" data-drag-node>
-          <div className="flex items-center gap-2">
-            <div className="max-w-[160px] truncate text-ellipsis text-nowrap">{place.city}</div>
-            <PlaceOffset place={place} />
+        <div className="flex grow flex-col gap-1" data-drag-node>
+          <div className="max-w-[134px] truncate text-ellipsis text-nowrap text-[13px]">
+            {place.city}, {place.country}
           </div>
-          <div className="text-xs">{place.country}</div>
+
+          {secondLine}
+          {/* <PlaceOffset homeTz={home.timeZone} leftTz={place.timeZone} /> */}
         </div>
 
         <div className="flex shrink-0 flex-col items-end font-mono text-[15px]">
