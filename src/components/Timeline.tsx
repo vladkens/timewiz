@@ -70,6 +70,7 @@ const useGetTimeline = (place: Place) => {
   const ss = DateTime.fromISO(date, { zone: home.timeZone }).setZone(place.timeZone)
   const dd = DateTime.now().setZone(place.timeZone)
 
+  let prevTT: DateTime | null = null
   const items = []
   for (let i = 0; i < 24; ++i) {
     const tt = ss.plus({ hours: i })
@@ -85,6 +86,7 @@ const useGetTimeline = (place: Place) => {
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,
+      isDSTChange: prevTT && prevTT.isInDST !== tt.isInDST,
       datetime: `${tt.toISO()}~${place.uid}`,
       className: clsx(
         isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
@@ -93,6 +95,8 @@ const useGetTimeline = (place: Place) => {
         isV && "bg-violet-50 border-violet-500 dark:bg-violet-600/40 dark:border-violet-600",
       ),
     })
+
+    prevTT = tt
   }
 
   return items
@@ -211,7 +215,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
               className={clsx(
                 "flex h-[32px] w-full items-center justify-center dark:text-white/85",
                 "border-b border-t border-gray-300 hover:bg-gray-200",
-                "leadning-none text-center",
+                "leadning-none relative text-center",
                 x.isDayStart && "rounded-l-md border-l",
                 x.isDayEnd && "rounded-r-md border-r",
                 x.isDayStart && idx > 0 && "ml-[1px]",
@@ -219,6 +223,9 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
                 x.className,
               )}
             >
+              {x.isDSTChange && (
+                <div className="absolute right-[3px] top-[3px] h-[5px] w-[5px] rounded-full bg-yellow-500" />
+              )}
               {x.label}
             </div>
           </div>
