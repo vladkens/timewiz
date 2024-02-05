@@ -11,8 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        short_name: "TimeWiz.cc",
-        name: "Scheduling Made Easy",
+        short_name: "TimeWiz",
+        name: "TimeWiz",
         icons: [{ src: "logo.svg", sizes: "any", type: "image/svg+xml" }],
       },
     }),

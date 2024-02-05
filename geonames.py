@@ -105,6 +105,21 @@ def get_locale(langs: list[str]):
     return langs[0] if len(langs) else "en"
 
 
+def print_features(cities: list[City]):
+    print("-" * 60)
+
+    features_count = defaultdict(int)
+    for x in cities:
+        features_count[x.feature_code] += 1
+
+    features_count = sorted(features_count.items(), key=lambda x: x[1], reverse=True)
+    for k, v in features_count:
+        sample = [x for x in cities if x.feature_code == k][:3]
+        sample = [f"{x.country_code}, {x.name}" for x in sample]
+        sample = " ~ ".join(sample)
+        print(f"{k:5} {v:7,d}: {sample}")
+
+
 def main():
     MIN_POPULATION = 80_000
 
@@ -119,26 +134,15 @@ def main():
     countries = sorted(countries, key=lambda x: x[0].lower())
     countries_idx = {x[0]: i for i, x in enumerate(countries)}
 
-    features_count = defaultdict(int)
-    for x in cities:
-        if x.population < MIN_POPULATION:
-            continue
-
-        features_count[x.feature_code] += 1
-
-    features_count = sorted(features_count.items(), key=lambda x: x[1], reverse=True)
-    for k, v in features_count:
-        print(k, v)
-
     # https://www.geonames.org/export/codes.html
-    features_skip = set(["PPLA5", "PPLA4", "PPLA3"])
-    cities = [x for x in cities if x.feature_code not in features_skip]
+    features_keep = set(["PPL", "PPLA", "PPLA2", "PPLC", "PPLG"])
+    cities = [x for x in cities if x.feature_code in features_keep]
 
     cities_by_country: dict[str, list[City]] = defaultdict(list)
     for x in cities:
         cities_by_country[x.country_code].append(x)
 
-    places = []
+    places, selected_cities = [], []
     for x in countries:
         items = cities_by_country.get(x[0], [])
         # always first 3 cities + other big cities
@@ -147,11 +151,16 @@ def main():
             # print(f"Missing cities for {x[0]}")
             continue
 
+        selected_cities.extend(items)
         for x in items:
             tz_idx, ct_idx = timezones_idx[x.timezone], countries_idx[x.country_code]
             r = [x.geonameid, x.name, tz_idx, ct_idx]
             places.append(r)
 
+    # print_features(cities)
+    print_features(selected_cities)
+
+    print("-" * 60)
     print(f"{len(places)} of {len(cities)}")
 
     with open("src/utils/geonames.json", "w") as fp:
