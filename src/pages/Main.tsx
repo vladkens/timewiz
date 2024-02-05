@@ -1,11 +1,13 @@
 import { FC, useEffect } from "react"
 import { Board } from "../components/Board"
 import { Tabs } from "../components/Tabs"
-import { useMutateTabs } from "../store"
+import { useFollowDateChange, useMutateTabs } from "../store"
 import { decodeShareUrl } from "../utils/share"
 
 export const MainPage: FC = () => {
   const { importTab } = useMutateTabs()
+
+  useFollowDateChange()
 
   useEffect(() => {
     const tab = decodeShareUrl(window.location.search)

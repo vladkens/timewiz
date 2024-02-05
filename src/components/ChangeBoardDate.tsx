@@ -1,7 +1,7 @@
 import { IconCalendarMonth } from "@tabler/icons-react"
 import { useAtom, useAtomValue } from "jotai"
 import { FC, useRef, useState } from "react"
-import { ActiveTab, ComputedDays, SelectedDate } from "../store"
+import { ActiveTab, QuickDates, SelectedDate } from "../store"
 import { encodeShareUrl } from "../utils/share"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
 import { Button } from "./ui/Button"
@@ -11,7 +11,7 @@ import { DatePicker } from "./ui/DatePicker"
 
 export const ChangeBoardDate: FC = () => {
   const [date, setDate] = useAtom(SelectedDate)
-  const dates = useAtomValue(ComputedDays)
+  const dates = useAtomValue(QuickDates)
   const activeTab = useAtomValue(ActiveTab)
 
   const [dpActive, setDpActive] = useState(false)

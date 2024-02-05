@@ -234,7 +234,7 @@ export const Board: FC = () => {
         cc.removeAttribute("data-dragging")
         cc.style.visibility = "visible"
 
-        reorderPlaces(ordered.map((x) => x.uid))
+        reorderPlaces(ordered.map((x) => x.id))
         return
       }
 
@@ -266,7 +266,7 @@ export const Board: FC = () => {
 
         <div key="timelines">
           {ordered.map((x) => (
-            <Timeline key={x.uid} place={x} />
+            <Timeline key={x.id} place={x} />
           ))}
         </div>
       </div>

@@ -3,6 +3,7 @@ import { atom, useAtomValue, useSetAtom } from "jotai"
 import { atomWithStorage, createJSONStorage } from "jotai/utils"
 import { orderBy, uniq, uniqBy } from "lodash-es"
 import { DateTime } from "luxon"
+import { useEffect } from "react"
 import { Place, PlaceId, getPlaceById, getSystemPlace } from "./utils/geonames"
 
 const recreateStorage = (msg: string) => {
@@ -24,7 +25,7 @@ export type TabDto = {
 }
 
 const getInitialStore = (): TabDto[] => {
-  const systemZoneId = getSystemPlace().uid
+  const systemZoneId = getSystemPlace().id
   const places = uniq([systemZoneId, 5128581, 2643743, 1275339]) as PlaceId[] // NYC, London, Mumbai
   return [{ id: Date.now(), places: places.map((id) => ({ id })), home: places[0], name: "Home" }]
 }
@@ -156,25 +157,27 @@ export const useMutateTab = () => {
 
 export const useIsHome = (left: Place) => {
   const { home } = useAtomValue(ActiveTab)
-  return home.uid === left.uid
+  return home.id === left.id
 }
 
 // General: Selected Date
 
 const todayDate = (zone: string) => DateTime.now().setZone(zone).set({ hour: 0 })
 
+const IncreateDate = atom(0)
 export const SelectedDate = atom<string | null>(null)
-
 export const ComputedDate = atom((get) => {
+  get(IncreateDate) // trigger recompute on change
+
   const { home } = get(ActiveTab)
   const date = get(SelectedDate)
-  return date ? date : todayDate(home.timeZone).toISODate()!
+  return date ? date : todayDate(home.zone).toISODate()!
 })
 
-export const ComputedDays = atom((get) => {
+export const QuickDates = atom((get) => {
   const { home } = get(ActiveTab)
   const current = get(ComputedDate)
-  const today = todayDate(home.timeZone)
+  const today = todayDate(home.zone)
 
   const items = []
   for (let i = -1; i <= 5; ++i) {
@@ -184,6 +187,27 @@ export const ComputedDays = atom((get) => {
 
   return items
 })
+
+export const useFollowDateChange = () => {
+  const set = useSetAtom(IncreateDate)
+
+  useEffect(() => {
+    let lt: string = ""
+
+    const intervalId = setInterval(() => {
+      const dt = new Date()
+      if (dt.getMinutes() % 15 !== 0) return // minimal zone offset
+
+      const st = dt.toISOString().substring(0, 16)
+      if (lt === st) return // already set
+
+      lt = st
+      set((x) => x + 1)
+    }, 2500)
+
+    return () => clearInterval(intervalId)
+  }, [])
+}
 
 // General: Clock Mode
 

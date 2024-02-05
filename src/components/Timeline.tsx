@@ -60,8 +60,8 @@ const useGetTimeline = (place: Place) => {
   const mode = useGetHourCycle(place)
   const date = useAtomValue(ComputedDate)
 
-  const ss = DateTime.fromISO(date, { zone: home.timeZone }).setZone(place.timeZone)
-  const dd = DateTime.now().setZone(place.timeZone)
+  const ss = DateTime.fromISO(date, { zone: home.zone }).setZone(place.zone)
+  const dd = DateTime.now().setZone(place.zone)
 
   let prevTT: DateTime | null = null
   const items = []
@@ -80,7 +80,7 @@ const useGetTimeline = (place: Place) => {
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,
       isDSTChange: prevTT && prevTT.isInDST !== tt.isInDST,
-      datetime: `${tt.toISO()}~${place.uid}`,
+      datetime: `${tt.toISO()}~${place.id}`,
       className: clsx(
         isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
         isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
@@ -136,7 +136,7 @@ const PlaceOffset: FC<{ homeTz: string; leftTz: string }> = ({ homeTz, leftTz })
           <span>·</span>
           <span
             className={clsx(
-              "bg-rest/50 text-nowrap rounded-lg border px-1 py-0.5",
+              "text-nowrap rounded-lg border bg-rest/50 px-1 py-0.5",
               dt > 0 ? "text-green-500" : "text-red-500",
             )}
           >
@@ -162,7 +162,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
   const mode = useGetHourCycle(place)
   const [_, rerender] = useReducer((x) => x + 1, 0)
 
-  const time = DateTime.now().setZone(place.timeZone)
+  const time = DateTime.now().setZone(place.zone)
   const pad = (x: number) => x.toString().padStart(2, "0")
 
   useEffect(() => {
@@ -172,7 +172,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
 
   return (
     <button
-      onClick={() => setHome(place.uid)}
+      onClick={() => setHome(place.id)}
       disabled={isHome}
       className={clsx(
         "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
@@ -202,8 +202,8 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
   const hours = useGetTimeline(place)
 
   const secondLine = useMemo(() => {
-    return <PlaceOffset homeTz={home.timeZone} leftTz={place.timeZone} />
-  }, [home.timeZone, place.timeZone])
+    return <PlaceOffset homeTz={home.zone} leftTz={place.zone} />
+  }, [home.zone, place.zone])
 
   return (
     <div
@@ -211,7 +211,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/50"
     >
       <button
-        onClick={() => delPlace(place.uid)}
+        onClick={() => delPlace(place.id)}
         disabled={isHome}
         className={clsx(
           "absolute ml-[-56px] h-[32px] w-[32px]",
@@ -229,7 +229,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
           </div>
 
           {secondLine}
-          {/* <PlaceOffset homeTz={home.timeZone} leftTz={place.timeZone} /> */}
+          {/* <PlaceOffset homeTz={home.zone} leftTz={place.zone} /> */}
         </div>
 
         <div className="flex shrink-0 flex-col items-end font-mono text-[15px]">

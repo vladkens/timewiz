@@ -1,19 +1,21 @@
 import { filterNullable } from "array-utils-ts"
+import { first } from "lodash-es"
 import { DateTime } from "luxon"
 import _records from "./geonames.json"
 
 type Brand<T, BrandT> = T & { _type: BrandT }
 export type PlaceId = Brand<number, "PlaceId">
 
-const records = _records as {
+const records = _records as unknown as {
   timezones: string[]
-  countries: [string, string, string][]
-  cities: [PlaceId, string, number, number][]
+  countries: [iso3: string, name: string, locale: string][]
+  cities: [id: PlaceId, name: string, tz_idx: number, ct_idx: number][]
+  legacy: Record<string, string[]>
 }
 
 export type Place = {
-  uid: PlaceId
-  timeZone: string
+  id: PlaceId
+  zone: string
   hourCycle: "h12" | "h24"
   countryCode: string
   country: string
@@ -49,12 +51,12 @@ const prepare = () => {
 
   const places = records.cities.map((record) => {
     try {
-      const uid = record[0] as PlaceId
+      const id = record[0] as PlaceId
       const city = record[1]
-      const timeZone = timezonesMap[record[2]]
+      const zone = timezonesMap[record[2]]
       const { code: countryCode, name: country, locale } = countriesMap[record[3]]
-      const hourCycle = getHourCycle(timeZone, locale)
-      return { uid, countryCode, timeZone, country, city, hourCycle, locale } satisfies Place
+      const hourCycle = getHourCycle(zone, locale)
+      return { id, countryCode, zone, country, city, hourCycle, locale } satisfies Place
     } catch (e) {
       console.log(`Error parsing geoname: ${record}`)
       return null
@@ -67,19 +69,24 @@ const prepare = () => {
 const Places = prepare()
 
 const byId = Places.reduce(
-  (acc, val) => Object.assign(acc, { [val.uid]: val }),
-  {} as Record<Place["uid"], Place>,
+  (acc, val) => Object.assign(acc, { [val.id]: val }),
+  {} as Record<Place["id"], Place>,
 )
 
 export const getPlaces = () => Places
 
-export const getPlaceById = (id: Place["uid"]) => (id in byId ? byId[id] : null)
+export const getPlaceById = (id: Place["id"]) => (id in byId ? byId[id] : null)
 
 export const getSystemPlace = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
 
-  const zones = Places.filter((x) => x.timeZone === timeZone)
-  if (zones.length) return zones[0]
+  // some OS have outdated zones in Intl API, so map current / legacy names to the latest ones
+  const tzs: Record<string, string> = {}
+  for (const zone of records.timezones) tzs[zone] = zone
+  for (const [nowName, oldNames] of Object.entries(records.legacy)) {
+    for (const oldName of oldNames) tzs[oldName] = nowName
+  }
 
-  return Places.find((x) => x.timeZone === "Europe/London")!
+  const zone = tzs[timeZone] ?? "Europe/London"
+  return first(Places.filter((x) => x.zone === zone))!
 }

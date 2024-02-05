@@ -99,6 +99,31 @@ def get_countries():
     return [Country(*row) for row in rows]
 
 
+def get_legacy_tzs():
+    rep = httpx.get("https://data.iana.org/time-zones/data/backward")
+    rep.raise_for_status()
+
+    data = rep.text.splitlines()
+    data = [x for x in data if x.startswith("Link")]
+
+    mapping = defaultdict(set)  # now -> old
+    for x in data:
+        parts = [x for x in x.split("\t") if len(x)]
+        now, was = parts[1], parts[2]
+
+        if now.startswith("Etc/") or was.startswith("Etc/"):
+            continue
+
+        if now.count("/") != 1 or was.count("/") != 1:
+            continue
+
+        mapping[now].add(was)
+
+    res = {k: sorted(list(v)) for k, v in mapping.items()}
+    res = sorted(res.items(), key=lambda x: x[0])
+    return dict(res)
+
+
 def get_locale(langs: list[str]):
     langs = [x.strip() for x in langs]
     langs = [x for x in langs if len(x)]
@@ -126,7 +151,7 @@ def main():
     cities = get_cities()
     cities = sorted(cities, key=lambda x: x.population, reverse=True)
 
-    timezones = list(set([x.timezone for x in cities]))
+    timezones = set([x.timezone for x in cities])
     timezones = sorted(timezones)
     timezones_idx = {x: i for i, x in enumerate(timezones)}
 
@@ -163,8 +188,15 @@ def main():
     print("-" * 60)
     print(f"{len(places)} of {len(cities)}")
 
+    legacy = get_legacy_tzs()
+
     with open("src/utils/geonames.json", "w") as fp:
-        data = dict(timezones=timezones, countries=countries, cities=places)
+        data = dict(
+            timezones=timezones,
+            countries=countries,
+            cities=places,
+            legacy=legacy,
+        )
         # json.dump(data, fp, indent=2, ensure_ascii=False)
         json.dump(data, fp)
 

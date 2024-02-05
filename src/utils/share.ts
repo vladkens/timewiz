@@ -10,8 +10,8 @@ const Base = 32
 export const encodeShareUrl = (tab: AtomValue<typeof ActiveTab>) => {
   const params = new URLSearchParams()
   params.set("n", tab.name)
-  params.set("p", tab.places.map((x) => x.uid.toString(Base)).join("-"))
-  params.set("h", tab.home.uid.toString(Base))
+  params.set("p", tab.places.map((x) => x.id.toString(Base)).join("-"))
+  params.set("h", tab.home.id.toString(Base))
   params.set("i", tab.id.toString(Base))
   return `${window.location.href}?${params.toString()}`
 }
@@ -44,8 +44,8 @@ export const useExportEvent = (duration: [string, string]) => {
 
   const toText = () => {
     const lines = places.map((x) => {
-      const st = DateTime.fromISO(duration[0]).setZone(x.timeZone)
-      const et = DateTime.fromISO(duration[1]).setZone(x.timeZone)
+      const st = DateTime.fromISO(duration[0]).setZone(x.zone)
+      const et = DateTime.fromISO(duration[1]).setZone(x.zone)
 
       const pp = st
         .toLocaleParts({ timeZoneName: "shortOffset" })
@@ -77,7 +77,7 @@ export const useExportEvent = (duration: [string, string]) => {
     const url = new URL("https://calendar.google.com/calendar/r/eventedit")
     url.searchParams.append("text", subject)
     url.searchParams.append("dates", duration.map(toCalendarISO).join("/"))
-    url.searchParams.append("ctz", home.timeZone)
+    url.searchParams.append("ctz", home.zone)
     window.open(url.toString(), "_blank")
   }
 
@@ -92,8 +92,8 @@ export const useExportEvent = (duration: [string, string]) => {
       `BEGIN:VEVENT`,
       `UID:ical-${Date.now()}@timewiz.cc`,
       `DTSTAMP:${toCalendarISO(DateTime.now().toISO())}Z`,
-      `DTSTART;TZID=${home.timeZone}:${toCalendarISO(duration[0])}`,
-      `DTEND;TZID=${home.timeZone}:${toCalendarISO(duration[1])}`,
+      `DTSTART;TZID=${home.zone}:${toCalendarISO(duration[0])}`,
+      `DTEND;TZID=${home.zone}:${toCalendarISO(duration[1])}`,
       `SUMMARY;LANGUAGE=en-us:${subject}`,
       `DESCRIPTION:${descr}`,
       `END:VEVENT`,

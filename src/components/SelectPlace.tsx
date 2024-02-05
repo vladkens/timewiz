@@ -12,7 +12,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
 
   const [_, rerender] = useReducer((x) => x + 1, 0)
 
-  const time = DateTime.now().setZone(place.timeZone)
+  const time = DateTime.now().setZone(place.zone)
   const pad = (x: number) => x.toString().padStart(2, "0")
 
   useEffect(() => {
@@ -39,16 +39,16 @@ export const SelectPlace: FC = () => {
   const [cursorIndex, setCursorIndex] = useState<number>(0)
 
   const handleSelect = (place: Place) => {
-    addPlace(place.uid)
+    addPlace(place.id)
     setValue("")
   }
 
   useEffect(() => {
     setCursorIndex(0)
 
-    const fuse = new Fuse(getPlaces(), { threshold: 0.2, keys: ["country", "city"] })
+    const fuse = new Fuse(getPlaces(), { threshold: 0.2, keys: ["city", "country"] })
     const options = (value.length > 0 ? fuse.search(value).map((x) => x.item) : [])
-      .filter((x) => !values.find((y) => y.uid === x.uid))
+      .filter((x) => !values.find((y) => y.id === x.id))
       .slice(0, 7)
 
     setOptions(options)
@@ -101,7 +101,7 @@ export const SelectPlace: FC = () => {
         <div className="absolute z-[100] mt-0.5 w-[320px] rounded-md border bg-card">
           {options.map((x, idx) => (
             <button
-              key={x.uid}
+              key={x.id}
               onClick={() => handleSelect(x)}
               onMouseOver={() => setCursorIndex(idx)}
               className={clsx(
