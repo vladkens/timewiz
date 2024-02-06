@@ -2,7 +2,7 @@ import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useEffect, useMemo, useReducer } from "react"
-import { ActiveTab, ComputedDate, useGetHourCycle, useIsHome, useMutateTab } from "../store"
+import { ActiveTab, ActualDate, useGetHourCycle, useIsHome, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
 
 const DayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
@@ -58,7 +58,7 @@ const useGetTimeline = (place: Place) => {
   const { home } = useAtomValue(ActiveTab)
 
   const mode = useGetHourCycle(place)
-  const date = useAtomValue(ComputedDate)
+  const date = useAtomValue(ActualDate)
 
   const ss = DateTime.fromISO(date, { zone: home.zone }).setZone(place.zone)
   const dd = DateTime.now().setZone(place.zone)

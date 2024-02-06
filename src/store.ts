@@ -139,7 +139,6 @@ export const useMutateTab = () => {
   const setPlaces = useSetTabProp("places")
   const _setHome = useSetTabProp("home")
   const setName = useSetTabProp("name")
-  const setDate = useSetAtom(SelectedDate)
 
   const addPlace = (placeId: PlaceId) => setPlaces((old) => uniqBy([...old, { id: placeId }], "id"))
   const delPlace = (placeId: PlaceId) => setPlaces((old) => old.filter((x) => x.id !== placeId))
@@ -149,7 +148,6 @@ export const useMutateTab = () => {
 
   const setHome = (placeId: PlaceId) => {
     _setHome((_) => placeId)
-    setDate(null)
   }
 
   return { addPlace, delPlace, reorderPlaces, setHome, setName }
@@ -160,36 +158,26 @@ export const useIsHome = (left: Place) => {
   return home.id === left.id
 }
 
-// General: Selected Date
+// General: Current Tab Date
 
-const todayDate = (zone: string) => DateTime.now().setZone(zone).set({ hour: 0 })
+const RecalcSystemDate = atom(0)
 
-const IncreateDate = atom(0)
-export const SelectedDate = atom<string | null>(null)
-export const ComputedDate = atom((get) => {
-  get(IncreateDate) // trigger recompute on change
-
+export const SystemDate = atom((get) => {
+  get(RecalcSystemDate) // trigger recompute on change
   const { home } = get(ActiveTab)
-  const date = get(SelectedDate)
-  return date ? date : todayDate(home.zone).toISODate()!
+  return DateTime.now().setZone(home.zone).set({ hour: 0 }).toISODate()!
 })
 
-export const QuickDates = atom((get) => {
-  const { home } = get(ActiveTab)
-  const current = get(ComputedDate)
-  const today = todayDate(home.zone)
+export const PickedDate = atom<string | null>(null)
 
-  const items = []
-  for (let i = -1; i <= 5; ++i) {
-    const date = today.plus({ days: i }).toISODate()!
-    items.push({ date, isActive: date === current })
-  }
-
-  return items
+export const ActualDate = atom((get) => {
+  const pickedDate = get(PickedDate)
+  const systemDate = get(SystemDate)
+  return pickedDate ?? systemDate
 })
 
 export const useFollowDateChange = () => {
-  const set = useSetAtom(IncreateDate)
+  const set = useSetAtom(RecalcSystemDate)
 
   useEffect(() => {
     let lt: string = ""

@@ -3,7 +3,7 @@ import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
-import { ActiveTab, ComputedDate, useMutateTab } from "../store"
+import { ActiveTab, ActualDate, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
 import { useExportEvent } from "../utils/share"
 import { useInteraction } from "../utils/useInteraction"
@@ -82,7 +82,7 @@ export const Board: FC = () => {
   const { places: rawPlaces } = useAtomValue(ActiveTab)
   const [ordered, setOrdered] = useState<Place[]>([])
 
-  const date = useAtomValue(ComputedDate)
+  const date = useAtomValue(ActualDate)
 
   const [range, setRange] = useState({ height: 0, top: 0, left: 0, opacity: 0 })
   const [holdOn, setHoldOn] = useState<string | null>(null)

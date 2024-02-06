@@ -19,7 +19,10 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
     return [dd, weeks]
   }, [ct])
 
-  const baseCls = "flex h-[28px] w-[28px] items-center justify-center leading-none rounded text-xs"
+  const baseCls = clsx(
+    "flex h-[28px] w-[28px] items-center justify-center leading-none rounded text-xs",
+    "border border-transparent",
+  )
 
   const buttons = [
     { icon: IconChevronLeft, onClick: () => setCt(ct.minus({ month: 1 })) },
@@ -38,7 +41,7 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
         {buttons.map((x, i) => (
           <button
             key={i}
-            className={clsx(baseCls, "hover:bg-rest cursor-pointer")}
+            className={clsx(baseCls, "cursor-pointer hover:bg-rest")}
             onClick={x.onClick}
           >
             <x.icon size={20} />
@@ -60,6 +63,7 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
             const ss = dd.plus({ week: week, day: x })
 
             const isActive = ss.toISODate() === value
+            const isToday = !isActive && ss.toISODate() === DateTime.now().toISODate()
             const isOtherMonth = !isActive && ss.month !== ct.month
             const isWeekend = !isActive && !isOtherMonth && ss.isWeekend
 
@@ -70,8 +74,9 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
                 onClick={() => onChange(ss.toISODate())}
                 className={clsx(
                   baseCls,
-                  "hover:bg-rest cursor-pointer",
+                  "cursor-pointer hover:bg-rest",
                   isActive && "bg-primary font-medium text-body-content hover:bg-primary",
+                  isToday && "border-yellow-400/40 bg-yellow-400/20",
                   isOtherMonth && "text-rest-content",
                   isWeekend && "text-red-500",
                 )}
