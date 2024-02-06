@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 import { FC, useEffect, useMemo, useReducer } from "react"
 import { ActiveTab, ActualDate, useGetHourCycle, useIsHome, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
+import { makePlaceName } from "../utils/misc"
 
 const DayLabel: FC<{ date: DateTime; mode: "h12" | "h24" }> = ({ date, mode }) => {
   const cls = "flex flex-col gap-0.5 uppercase leading-none"
@@ -225,7 +226,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       <div className="flex w-[212px] shrink-0 items-center gap-2 text-sm leading-none">
         <div className="flex grow flex-col gap-1" data-drag-node>
           <div className="max-w-[134px] truncate text-ellipsis text-nowrap text-[13px]">
-            {place.city}, {place.country}
+            {makePlaceName(place)}
           </div>
 
           {secondLine}

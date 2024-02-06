@@ -2,6 +2,7 @@ import { Atom, useAtomValue } from "jotai"
 import { DateTime } from "luxon"
 import { ActiveTab, TabDto } from "../store"
 import { PlaceId } from "./geonames"
+import { makePlaceName } from "./misc"
 
 type AtomValue<Type> = Type extends Atom<infer X> ? X : never
 
@@ -51,7 +52,7 @@ export const useExportEvent = (duration: [string, string]) => {
         .toLocaleParts({ timeZoneName: "shortOffset" })
         .find((x) => x.type === "timeZoneName")!
 
-      const tl = `${x.city}, ${x.country} (${pp.value})`
+      const tl = `${makePlaceName(x)} (${pp.value})`
       const sl = `${st.toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)}`
       const el = `${et.toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)}`
       return [tl, sl, el].join("\n")

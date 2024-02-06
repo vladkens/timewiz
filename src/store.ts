@@ -25,9 +25,9 @@ export type TabDto = {
 }
 
 const getInitialStore = (): TabDto[] => {
-  const systemZoneId = getSystemPlace().id
-  const places = uniq([systemZoneId, 5128581, 2643743, 1275339]) as PlaceId[] // NYC, London, Mumbai
-  return [{ id: Date.now(), places: places.map((id) => ({ id })), home: places[0], name: "Home" }]
+  const sysTzId = getSystemPlace().id
+  const places = uniq([-1, sysTzId, 5128581, 2643743, 1275339]) as PlaceId[] // NYC, London, Mumbai
+  return [{ id: Date.now(), places: places.map((id) => ({ id })), home: sysTzId, name: "Home" }]
 }
 
 const TabsStore = atomWithStorage<TabDto[]>("tabs-store", getInitialStore(), undefined, {

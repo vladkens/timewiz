@@ -63,6 +63,18 @@ const prepare = () => {
     }
   })
 
+  const utcPlace: Place = {
+    id: -1 as PlaceId,
+    zone: "UTC",
+    hourCycle: "h24",
+    countryCode: "",
+    country: "",
+    city: "UTC",
+    locale: "en",
+  }
+
+  places.push(utcPlace)
+
   return filterNullable(places)
 }
 
@@ -81,7 +93,7 @@ export const getSystemPlace = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
 
   // some OS have outdated zones in Intl API, so map current / legacy names to the latest ones
-  const tzs: Record<string, string> = {}
+  const tzs: Record<string, string> = { "Etc/UTC": "UTC" }
   for (const zone of records.timezones) tzs[zone] = zone
   for (const [nowName, oldNames] of Object.entries(records.legacy)) {
     for (const oldName of oldNames) tzs[oldName] = nowName

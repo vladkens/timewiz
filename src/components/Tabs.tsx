@@ -23,7 +23,6 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
 
   const apply = () => {
     if (!edit) return
-
     if (input.trim().length) setName(tab.id, input.trim())
     setEdit(false)
   }
@@ -42,7 +41,6 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
 
   return (
     <div
-      ref={ref}
       onClick={() => click()}
       className={clsx(
         "flex h-[32px] select-none items-center justify-between gap-1.5 border-t-2 border-transparent",
@@ -54,6 +52,7 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
       <div className="min-w-[48px] grow">
         {edit ? (
           <input
+            ref={ref}
             autoFocus
             value={input}
             onChange={(e) => setInput(e.target.value)}

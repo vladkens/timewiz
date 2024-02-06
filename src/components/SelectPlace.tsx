@@ -5,6 +5,7 @@ import { DateTime } from "luxon"
 import { FC, useEffect, useReducer, useRef, useState } from "react"
 import { ActiveTab, useGetHourCycle, useMutateTab } from "../store"
 import { Place, getPlaces } from "../utils/geonames"
+import { makePlaceName } from "../utils/misc"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
 
 const Clock: FC<{ place: Place }> = ({ place }) => {
@@ -110,9 +111,7 @@ export const SelectPlace: FC = () => {
                 idx === cursorIndex && "bg-card-content/30",
               )}
             >
-              <div className="line-clamp-1 grow text-left">
-                {x.city}, {x.country}
-              </div>
+              <div className="line-clamp-1 grow text-left">{makePlaceName(x)}</div>
               <Clock place={x} />
             </button>
           ))}
