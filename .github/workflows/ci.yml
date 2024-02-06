@@ -22,9 +22,17 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn build
 
-      - uses: peaceiris/actions-gh-pages@v3
+      - uses: cloudflare/pages-action@v1
         if: github.ref == 'refs/heads/main'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
-          cname: timewiz.cc
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          projectName: timewiz
+          directory: dist
+
+      # - uses: peaceiris/actions-gh-pages@v3
+      #   if: github.ref == 'refs/heads/main'
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: dist
+      #     cname: timewiz.cc
