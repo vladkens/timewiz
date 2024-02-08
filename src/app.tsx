@@ -4,7 +4,7 @@ import { Redirect, Route, Router, Switch } from "wouter"
 import { Header } from "./components/Header"
 import { MainPage } from "./pages/Main"
 
-const GoMain: FC = () => {
+const GoIndex: FC = () => {
   return <Redirect to="/" replace />
 }
 
@@ -12,15 +12,13 @@ export const App: FC = () => {
   return (
     <Router>
       <Provider>
-        <div className="mx-auto w-[100vw] max-w-[1040px] px-2.5 pb-8">
-          <Header />
+        <Header />
 
-          <Switch>
-            {/* <Route path="/features" component={FeaturesPage} /> */}
-            <Route path="/" component={MainPage} />
-            <Route component={GoMain} />
-          </Switch>
-        </div>
+        <Switch>
+          {/* <Route path="/features" component={FeaturesPage} /> */}
+          <Route path="/" component={MainPage} />
+          <Route component={GoIndex} />
+        </Switch>
       </Provider>
     </Router>
   )

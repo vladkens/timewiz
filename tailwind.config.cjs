@@ -26,5 +26,12 @@ export default {
         primary: fromVar("primary"),
       },
     },
+    screens: {
+      // https://tailwindcss.com/docs/screens#max-width-breakpoints
+      xl: { max: "1279px" },
+      lg: { max: "1023px" },
+      md: { max: "767px" },
+      sm: { max: "639px" },
+    },
   },
 }

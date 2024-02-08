@@ -30,7 +30,8 @@ export const Header: FC = () => {
         >
           <div className="flex skew-x-[14deg] items-center gap-1">
             <IconCoffee size={15} />
-            Buy me a coffee
+            <span className="md:hidden">Buy me a coffee</span>
+            <span className="hidden md:block">Donate</span>
           </div>
         </a>
 

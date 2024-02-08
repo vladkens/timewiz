@@ -52,6 +52,23 @@
   [data-drag-node] {
     @apply cursor-move;
   }
+
+  #root {
+    @apply mx-auto max-w-[1040px] overflow-hidden px-2.5 pb-8;
+  }
+}
+
+@layer utilities {
+  /* https://github.com/reslear/tailwind-scrollbar-hide/blob/main/src/index.js */
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .animate-tick {

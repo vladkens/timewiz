@@ -24,7 +24,7 @@ export const Button: FC<ButtonProps> = (props) => {
   return (
     <button
       className={clsx(
-        "flex items-center gap-1 rounded border",
+        "flex items-center gap-1 text-nowrap rounded border",
         sizes[size],
         disabled ? "border-card-content/30 bg-card" : "border-card-content",
         className,

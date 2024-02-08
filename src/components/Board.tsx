@@ -1,81 +1,12 @@
-import { IconCalendarEvent, IconClock, IconCloudDownload, IconMail } from "@tabler/icons-react"
 import clsx from "clsx"
 import { useAtomValue } from "jotai"
-import { DateTime } from "luxon"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { ActiveTab, ActualDate, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
-import { useExportEvent } from "../utils/share"
 import { useInteraction } from "../utils/useInteraction"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
-import { ChangeBoardDate } from "./ChangeBoardDate"
-import { SelectPlace } from "./SelectPlace"
+import { BoardDefaultHead, BoardSelectHead, DateRangeISO } from "./BoardHead"
 import { Timeline } from "./Timeline"
-import { Button } from "./ui/Button"
-import { ButtonCopy } from "./ui/ButtonCopy"
-
-type DateRangeISO = [string, string] // start, end date
-
-const BoardDefaultHead: FC = () => {
-  return (
-    <div className="flex w-full items-center gap-2.5 px-4 py-2">
-      <div className="w-[220px]">
-        <SelectPlace />
-      </div>
-
-      <ChangeBoardDate />
-    </div>
-  )
-}
-
-const BoardSelectHead: FC<{ duration: DateRangeISO }> = ({ duration }) => {
-  const actions = useExportEvent(duration)
-
-  const at = DateTime.fromISO(duration[0])
-  const bt = DateTime.fromISO(duration[1])
-  const dt = Math.abs(at.diff(bt, "minutes").minutes) + 60
-
-  // prettier-ignore
-  const ll = [{ label: "hr", value: Math.floor(dt / 60) }, { label: "min", value: dt % 60 }]
-    .filter((x) => x.value > 0)
-    .map((x) => `${x.value} ${x.label}`)
-    .join(" ")
-
-  return (
-    <div className="flex h-full w-full items-center gap-2.5 px-4 py-2">
-      <div className="flex w-[212px] items-center justify-end gap-1">
-        <IconClock className="h-5 w-5" />
-        {ll}
-      </div>
-
-      <div className="flex flex-row gap-2">
-        <Button
-          onClick={actions.toGoogleCalendar}
-          size="sm"
-          leftSection={<IconCalendarEvent className="h-4 w-4" />}
-        >
-          Google Calendar
-        </Button>
-
-        <Button onClick={actions.toEmail} size="sm" leftSection={<IconMail className="h-4 w-4" />}>
-          Email
-        </Button>
-
-        <ButtonCopy value={actions.toText} size="sm">
-          Clipboard
-        </ButtonCopy>
-
-        <Button
-          onClick={actions.toIcal}
-          size="sm"
-          leftSection={<IconCloudDownload className="h-4 w-4" />}
-        >
-          iCal / ICS
-        </Button>
-      </div>
-    </div>
-  )
-}
 
 export const Board: FC = () => {
   const { reorderPlaces } = useMutateTab()
@@ -88,7 +19,6 @@ export const Board: FC = () => {
   const [holdOn, setHoldOn] = useState<string | null>(null)
   const [duration, setDuration] = useState<DateRangeISO | null>(null)
   const timelinesRef = useRef<HTMLDivElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
 
   const calcLine = useCallback(() => {
     const cc = document.querySelector("[data-home=true] [data-current=true]")
@@ -242,6 +172,7 @@ export const Board: FC = () => {
     },
   })
 
+  const rootRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(rootRef, () => {
     setHoldOn(null)
     setDuration(null)
@@ -254,7 +185,14 @@ export const Board: FC = () => {
         {duration ? <BoardSelectHead duration={duration} /> : <BoardDefaultHead />}
       </div>
 
-      <div ref={timelinesRef} className="relative box-border flex flex-col border-t py-2">
+      <div
+        ref={timelinesRef}
+        onWheel={(e) => (e.currentTarget.scrollLeft += e.deltaY > 0 ? 75 : -75)}
+        className={clsx(
+          "relative box-border flex flex-col border-t py-2",
+          "no-scrollbar overflow-x-scroll",
+        )}
+      >
         <div
           style={range}
           className={clsx(
