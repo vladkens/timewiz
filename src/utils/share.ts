@@ -43,18 +43,18 @@ export const decodeShareUrl = (url: string): TabDto | null => {
   }
 }
 
-export const toCalendarISO = (dt: string) => {
-  return dt.split(".")[0].replaceAll(":", "").replaceAll("-", "")
+export const toCalendarISO = (dt: DateTime) => {
+  return dt.toISO()!.split(".")[0].replaceAll(":", "").replaceAll("-", "")
 }
 
-export const useExportEvent = (duration: [string, string]) => {
+export const useExportEvent = (a: DateTime, b: DateTime) => {
   const { places, home } = useAtomValue(ActiveTab)
   const subject = "Let's meet!"
 
   const toText = () => {
     const lines = places.map((x) => {
-      const st = DateTime.fromISO(duration[0]).setZone(x.zone)
-      const et = DateTime.fromISO(duration[1]).setZone(x.zone)
+      const st = a.setZone(x.zone)
+      const et = b.setZone(x.zone)
 
       const pp = st
         .toLocaleParts({ timeZoneName: "shortOffset" })
@@ -85,7 +85,7 @@ export const useExportEvent = (duration: [string, string]) => {
     // https://kloudless.com/blog/monday-mentorship-how-to-create-a-link-to-add-an-event-in-the-google-calendar-api/
     const url = new URL("https://calendar.google.com/calendar/r/eventedit")
     url.searchParams.append("text", subject)
-    url.searchParams.append("dates", duration.map(toCalendarISO).join("/"))
+    url.searchParams.append("dates", [a, b].map(toCalendarISO).join("/"))
     url.searchParams.append("ctz", home.zone)
     window.open(url.toString(), "_blank")
   }
@@ -100,16 +100,16 @@ export const useExportEvent = (duration: [string, string]) => {
       `METHOD:REQUEST`,
       `BEGIN:VEVENT`,
       `UID:ical-${Date.now()}@timewiz.cc`,
-      `DTSTAMP:${toCalendarISO(DateTime.now().toISO())}Z`,
-      `DTSTART;TZID=${home.zone}:${toCalendarISO(duration[0])}`,
-      `DTEND;TZID=${home.zone}:${toCalendarISO(duration[1])}`,
+      `DTSTAMP:${toCalendarISO(DateTime.now())}Z`,
+      `DTSTART;TZID=${home.zone}:${toCalendarISO(a)}`,
+      `DTEND;TZID=${home.zone}:${toCalendarISO(b)}`,
       `SUMMARY;LANGUAGE=en-us:${subject}`,
       `DESCRIPTION:${descr}`,
       `END:VEVENT`,
       `END:VCALENDAR`,
     ].join("\r\n")
 
-    const filename = DateTime.fromISO(duration[0])
+    const filename = a
       .toLocaleString(DateTime.DATETIME_MED)
       .replaceAll(" ", "_")
       .replaceAll(":", "_")

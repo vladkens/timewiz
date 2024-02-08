@@ -212,3 +212,7 @@ export const useGetHourCycle = (place: Place): "h12" | "h24" => {
 
 type Theme = "light" | "dark"
 export const ThemeStore = atomWithStorage<Theme>("theme", "light", undefined, { getOnInit: true })
+
+// UI
+
+export const TlSelected = atom<[string, string] | null>(null)

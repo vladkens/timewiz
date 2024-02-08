@@ -10,7 +10,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { range } from "lodash-es"
 import { DateTime } from "luxon"
 import { FC, useEffect, useMemo, useRef, useState } from "react"
-import { ActiveTab, ActualDate, PickedDate, SystemDate } from "../store"
+import { ActiveTab, ActualDate, PickedDate, SystemDate, TlSelected } from "../store"
 import { encodeShareUrl, useExportEvent } from "../utils/share"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
 import { SelectPlace } from "./SelectPlace"
@@ -19,9 +19,18 @@ import { ButtonCopy } from "./ui/ButtonCopy"
 import { ButtonIcon } from "./ui/ButtonIcon"
 import { DatePicker } from "./ui/DatePicker"
 
-export type DateRangeISO = [string, string] // start, end date
+const getISO = (idx: string) => {
+  const el = document.querySelector(`[data-tl-home=true] [data-tl-idx="${idx}"]`) as HTMLElement
+  return el.getAttribute("data-tl-iso")!
+}
 
-export const BoardDefaultHead: FC = () => {
+export const BoardHead: FC = () => {
+  const tlSelected = useAtomValue(TlSelected)
+  if (!tlSelected) return <DefaultHead />
+  return <SelectionHead a={getISO(tlSelected[0])} b={getISO(tlSelected[1])} />
+}
+
+const DefaultHead: FC = () => {
   const setPickedDate = useSetAtom(PickedDate)
   const systemDate = useAtomValue(SystemDate)
   const actualDate = useAtomValue(ActualDate)
@@ -49,13 +58,17 @@ export const BoardDefaultHead: FC = () => {
     const it = quickDate !== systemDate ? range(-3, 4) : range(-1, 6)
     return it.map((x) => {
       const dt = dd.plus({ days: x })
-      return { date: dt.toISODate()!, isWeekend: dt.isWeekend }
+      const date = dt.toISODate()!
+      return { date, isWeekend: dt.isWeekend, isToday: date === systemDate }
     })
   }, [quickDate, systemDate])
 
   useEffect(() => {
-    setQuickDate(actualDate)
-  }, [systemDate])
+    if (systemDate === actualDate) setPickedDate(null)
+  }, [systemDate, actualDate])
+
+  // actualDate is cached here to not update quick dates until today button clicked
+  useEffect(() => setQuickDate(actualDate), [systemDate])
 
   return (
     <div className="flex w-full items-center gap-2.5 px-4 py-2">
@@ -84,7 +97,11 @@ export const BoardDefaultHead: FC = () => {
             onClick={() => setPickedDate(x.date)}
             size="sm"
             disabled={x.date === actualDate}
-            className={clsx(x.isWeekend && "text-red-500")}
+            className={clsx(
+              "mix-w-[56px]",
+              x.isWeekend && "text-red-500",
+              x.isToday && "border-yellow-400/40 bg-yellow-400/20",
+            )}
           >
             {new Date(x.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
           </Button>
@@ -104,12 +121,11 @@ export const BoardDefaultHead: FC = () => {
   )
 }
 
-export const BoardSelectHead: FC<{ duration: DateRangeISO }> = ({ duration }) => {
-  const actions = useExportEvent(duration)
-
-  const at = DateTime.fromISO(duration[0])
-  const bt = DateTime.fromISO(duration[1])
+const SelectionHead: FC<{ a: string; b: string }> = ({ a, b }) => {
+  const at = DateTime.fromISO(a)
+  const bt = DateTime.fromISO(b)
   const dt = Math.abs(at.diff(bt, "minutes").minutes) + 60
+  const actions = useExportEvent(at, bt)
 
   // prettier-ignore
   const ll = [{ label: "hr", value: Math.floor(dt / 60) }, { label: "min", value: dt % 60 }]

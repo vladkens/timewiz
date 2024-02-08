@@ -81,7 +81,7 @@ const useGetTimeline = (place: Place) => {
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,
       isDSTChange: prevTT && prevTT.isInDST !== tt.isInDST,
-      datetime: `${tt.toISO()}~${place.id}`,
+      datetime: tt.toISO(),
       className: clsx(
         isR && "bg-red-50 border-red-500 dark:bg-red-600/40 dark:border-red-600",
         isG && "bg-green-100 border-green-500 dark:bg-green-600/40 dark:border-green-600",
@@ -104,15 +104,10 @@ const PlaceOffset: FC<{ homeTz: string; leftTz: string }> = ({ homeTz, leftTz })
   const hh = Math.floor(dt / 60)
   const mm = Math.abs(dt % 60)
 
-  // prettier-ignore
-  const items = [{ v: Math.abs(hh), u: "h" },{ v: Math.abs(mm), u: "m" }]
-  const label = `${items
-    .filter((x) => x.v !== 0)
-    .map((x) => `${x.v}${x.u}`)
-    .join(" ")}`
+  const label = [Math.abs(hh), Math.abs(mm)].filter((x) => x !== 0).join(":")
 
   let tzLabel = d2.toFormat("ZZZZ")
-  if (tzLabel.includes("GMT")) tzLabel = ""
+  if (tzLabel.includes("GMT") || tzLabel.includes("UTC")) tzLabel = ""
 
   let day = d2.day !== d1.day ? `${d2.monthShort} ${d2.day}` : ""
 
@@ -230,7 +225,6 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
           </div>
 
           {secondLine}
-          {/* <PlaceOffset homeTz={home.zone} leftTz={place.zone} /> */}
         </div>
 
         <div className="flex shrink-0 flex-col items-end font-mono text-[15px]">
@@ -238,13 +232,14 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
         </div>
       </div>
 
-      <div className="flex h-[44px] select-none items-center" data-home={isHome}>
+      <div className="flex h-[44px] select-none items-center" data-tl-home={isHome}>
         {hours.map((x, idx) => (
           <div
             key={idx}
-            data-current={x.isCurrent}
-            data-datetime={x.datetime}
-            className="flex h-full w-[32px] items-center"
+            data-tl-idx={idx}
+            data-tl-now={x.isCurrent}
+            data-tl-iso={x.datetime}
+            className="relative flex h-full w-[32px] items-center"
           >
             <div
               className={clsx(
