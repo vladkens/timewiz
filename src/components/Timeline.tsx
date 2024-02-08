@@ -206,19 +206,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
       data-drag-root
       className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/50"
     >
-      <button
-        onClick={() => delPlace(place.id)}
-        disabled={isHome}
-        className={clsx(
-          "absolute ml-[-56px] h-[32px] w-[32px]",
-          "rounded-full font-mono leading-none",
-          isHome ? "invisible text-[20px]" : "text-[22px] text-body-content/20 hover:text-red-500",
-        )}
-      >
-        {isHome ? "🏠" : <>&times;</>}
-      </button>
-
-      <div className="flex w-[212px] shrink-0 items-center gap-2 text-sm leading-none">
+      <div className="flex min-w-[212px] shrink-0 grow items-center gap-2 text-sm leading-none">
         <div className="flex grow flex-col gap-1" data-drag-node>
           <div className="max-w-[134px] truncate text-ellipsis text-nowrap text-[13px]">
             {makePlaceName(place)}

@@ -46,7 +46,7 @@
   }
 
   body {
-    @apply !bg-body text-body-content;
+    @apply overflow-hidden !bg-body text-body-content;
   }
 
   [data-drag-node] {
@@ -54,7 +54,7 @@
   }
 
   #root {
-    @apply mx-auto max-w-[1040px] overflow-hidden px-2.5 pb-8;
+    @apply mx-auto max-w-[1040px] px-2.5 pb-8;
   }
 }
 

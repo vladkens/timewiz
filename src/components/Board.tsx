@@ -3,14 +3,15 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { FC, useEffect, useRef, useState } from "react"
 import { ActiveTab, TlSelected, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
+import { makePlaceName } from "../utils/misc"
 import { BoardHead } from "./BoardHead"
 import { BoardLine } from "./BoardLine"
 import { Timeline } from "./Timeline"
 
 export const Board: FC = () => {
-  const { places: rawPlaces } = useAtomValue(ActiveTab)
+  const { places: rawPlaces, home } = useAtomValue(ActiveTab)
   const [ordered, setOrdered] = useState<Place[]>([])
-  const { reorderPlaces } = useMutateTab()
+  const { reorderPlaces, delPlace } = useMutateTab()
   const setTlSelected = useSetAtom(TlSelected)
 
   const rtRef = useRef<HTMLDivElement>(null)
@@ -144,9 +145,30 @@ export const Board: FC = () => {
   }, [rawPlaces])
 
   return (
-    <div ref={rtRef} className="flex flex-col">
+    <div ref={rtRef} className="relative flex flex-col">
       <div className="h-[48px] w-full">
         <BoardHead />
+      </div>
+
+      <div className="absolute ml-[-32px] flex h-full w-[32px] flex-col items-center justify-end py-2">
+        {ordered.map((x) => (
+          <div key={x.id} className="flex h-[44px] w-full items-center justify-center">
+            <button
+              onClick={() => delPlace(x.id)}
+              disabled={x.id === home.id}
+              title={`Remove ${makePlaceName(x)}`}
+              className={clsx(
+                "h-[24px] w-[24px] rounded-full border border-transparent font-mono leading-none",
+                "text-[20px]",
+                x.id === home.id
+                  ? "hidden"
+                  : "text-body-content/20 hover:border-red-500/30 hover:bg-red-500/20 hover:text-red-500",
+              )}
+            >
+              &times;
+            </button>
+          </div>
+        ))}
       </div>
 
       <div
