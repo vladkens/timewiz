@@ -1,25 +1,8 @@
-import { filterNullable } from "array-utils-ts"
 import clsx from "clsx"
 import { useAtom, useAtomValue } from "jotai"
-import { range } from "lodash-es"
 import { FC, useCallback, useEffect, useRef } from "react"
 import { ActiveTab, ActualDate, TlSelected } from "../store"
 import { useOnClickOutside } from "../utils/useOnClickOutside"
-
-const updateSelection = (els: [HTMLElement, HTMLElement] | null) => {
-  document.querySelectorAll("[data-tl-idx]").forEach((x) => x.classList.remove("tl-active"))
-
-  const abc = filterNullable(els?.map((x) => x.getAttribute("data-tl-idx")) ?? [])
-    .map((x) => parseInt(x, 10))
-    .filter((x) => !isNaN(x))
-    .sort((a, b) => a - b)
-
-  if (abc.length !== 2) return
-
-  for (const x of range(24).filter((x) => x < abc[0] || abc[1] < x)) {
-    document.querySelectorAll(`[data-tl-idx="${x}"]`).forEach((x) => x.classList.add("tl-active"))
-  }
-}
 
 // prettier-ignore
 const getIdx = (idx: string) => document.querySelector(`[data-tl-home=true] [data-tl-idx="${idx}"]`) as HTMLElement
@@ -35,9 +18,9 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
   const date = useAtomValue(ActualDate)
 
   const [selected, setSelected] = useAtom(TlSelected)
-  const cRef = useRef<HTMLDivElement>(null)
-  // const lRef = useRef<HTMLDivElement>(null)
-  // const rRef = useRef<HTMLDivElement>(null)
+  const cRef = useRef<HTMLDivElement>(null) // center line
+  const lRef = useRef<HTMLDivElement>(null) // left glass
+  const rRef = useRef<HTMLDivElement>(null) // right glass
 
   const selectedRef = useRef(selected)
   selectedRef.current = selected
@@ -45,35 +28,44 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
   // root ref here to work click on event buttons
   useOnClickOutside(rtRef, () => setSelected(null))
 
-  const setLine = useCallback((x: number, width: number) => {
-    if (!tlRef.current || !cRef.current) return
+  const resetLine = useCallback(() => {
+    if (!cRef.current || !lRef.current || !rRef.current) return
 
-    const el = tlRef.current
-    const rt = el.getBoundingClientRect()
-    const xx = rt.left + el.scrollLeft
+    cRef.current.style.opacity = "0"
+    lRef.current.style.opacity = "0"
+    rRef.current.style.opacity = "0"
+  }, [])
 
+  const setLine = useCallback((x: number, width: number, glass = false) => {
+    if (!tlRef.current || !cRef.current || !lRef.current || !rRef.current) return
+
+    const hh = tlRef.current.getBoundingClientRect().height
+    const pl = tlRef.current.getBoundingClientRect().left - tlRef.current.scrollLeft
+    const cx = x - pl
+
+    cRef.current.style.top = `${hh / 2}px`
+    cRef.current.style.height = `${hh - 16}px`
     cRef.current.style.opacity = "1"
-    cRef.current.style.top = `${rt.height / 2}px`
-    cRef.current.style.height = `${rt.height - 16}px`
-    cRef.current.style.left = `${x - xx}px`
+    cRef.current.style.left = `${cx}px`
     cRef.current.style.width = `${width}px`
 
-    // const [head, tail] = [getIdx("0"), getIdx("23")]
-    // if (!lRef.current || !rRef.current || !head || !tail) return
+    const [head, tail] = [getIdx("0"), getIdx("23")]
+    if (!head || !tail) return
 
-    // const x1 = head.getBoundingClientRect().left - xx
-    // lRef.current.style.top = `${rt.height / 2}px`
-    // lRef.current.style.height = `${rt.height - 16}px`
-    // lRef.current.style.opacity = glass ? "1" : "0"
-    // lRef.current.style.left = `${x1}px`
-    // lRef.current.style.width = `${x - xx - x1}px`
+    const lx = head.getBoundingClientRect().left - pl
+    const rx = tail.getBoundingClientRect().right - pl
 
-    // const x2 = x - xx + width
-    // rRef.current.style.top = `${rt.height / 2}px`
-    // rRef.current.style.height = `${rt.height - 16}px`
-    // rRef.current.style.opacity = glass ? "1" : "0"
-    // rRef.current.style.left = `${x2}px`
-    // rRef.current.style.width = `${tail.getBoundingClientRect().right - x2 - 58.5}px`
+    lRef.current.style.top = `${hh / 2}px`
+    lRef.current.style.height = `${hh - 16}px`
+    lRef.current.style.opacity = glass ? "1" : "0"
+    lRef.current.style.left = `${lx}px`
+    lRef.current.style.width = `${cx - lx}px`
+
+    rRef.current.style.top = `${hh / 2}px`
+    rRef.current.style.height = `${hh - 16}px`
+    rRef.current.style.opacity = glass ? "1" : "0"
+    rRef.current.style.left = `${cx + width}px`
+    rRef.current.style.width = `${rx - cx - width}px`
   }, [])
 
   const calc = useCallback(() => {
@@ -81,10 +73,8 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
 
     const selected = selectedRef.current
     if (!selected) {
-      updateSelection(null)
-
       const el = getNow()
-      if (!el && cRef.current) cRef.current.style.opacity = "0"
+      if (!el && cRef.current) resetLine()
       else {
         const rc = el.getBoundingClientRect()
         setLine(rc.left, rc.width)
@@ -92,13 +82,12 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
     } else {
       const ae = getIdx(selected[0])
       const be = getIdx(selected[1])
-      updateSelection([ae, be])
 
       const a = ae.getBoundingClientRect()
       const b = be.getBoundingClientRect()
       const l = Math.min(b.left, a.left)
       const w = b.left < a.left ? a.right - b.left : b.right - a.left
-      setLine(l, w)
+      setLine(l, w, true)
     }
   }, [])
 
@@ -114,11 +103,12 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
     setSelected(null)
   }, [home])
 
-  const cls = "absolute pointer-events-none select-none box-border -translate-y-1/2"
+  const cls = "absolute z-[10] box-border -translate-y-1/2 pointer-events-none select-none"
+  const sideCls = clsx(cls, "z-[14] bg-blue-100/50")
 
   return (
     <>
-      {/* <div ref={lRef} className={clsx(cls, "z-[14] h-full w-full bg-red-100/50")} /> */}
+      <div ref={lRef} className={sideCls} />
       <div
         ref={cRef}
         className={clsx(
@@ -126,7 +116,7 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
           "z-[15] w-[32px] rounded-md border-2 border-red-500/50 dark:border-red-500/80",
         )}
       />
-      {/* <div ref={rRef} className={clsx(cls, "z-[14] h-full w-full bg-green-100/50")} /> */}
+      <div ref={rRef} className={sideCls} />
     </>
   )
 }

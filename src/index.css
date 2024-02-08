@@ -56,10 +56,6 @@
   #root {
     @apply mx-auto max-w-[1040px] overflow-hidden px-2.5 pb-8;
   }
-
-  .tl-active {
-    @apply bg-blue-100/50;
-  }
 }
 
 @layer utilities {
