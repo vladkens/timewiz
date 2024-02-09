@@ -66,6 +66,14 @@ export const Header: FC = () => {
 
       <div className="flex items-center gap-5">
         <a
+          href="https://github.com/vladkens/timewiz/issues/new"
+          target="_blank"
+          className="text-sm hover:underline md:hidden"
+        >
+          Feedback
+        </a>
+
+        <a
           href="https://www.buymeacoffee.com/vladkens"
           target="_blank"
           className={clsx(
