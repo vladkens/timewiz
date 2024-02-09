@@ -6,5 +6,11 @@
   "trailingComma": "all",
   "jsxSingleQuote": false,
   "arrowParens": "always",
-  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": ["index.html"],
+      "options": { "printWidth": 1024 }
+    }
+  ]
 }
