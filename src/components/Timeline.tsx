@@ -231,7 +231,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
             <div
               className={clsx(
                 "flex h-[32px] w-full items-center justify-center dark:text-white/85",
-                "border-b border-t border-gray-300 hover:bg-gray-200",
+                "border-b border-t border-gray-300",
                 "leadning-none relative text-center",
                 x.isDayStart && "rounded-l-md border-l",
                 x.isDayEnd && "rounded-r-md border-r",

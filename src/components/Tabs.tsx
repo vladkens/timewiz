@@ -28,7 +28,7 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
   }
 
   const ref = useRef<HTMLInputElement>(null)
-  useOnClickOutside(ref, apply)
+  useOnClickOutside(ref, () => setEdit(false))
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

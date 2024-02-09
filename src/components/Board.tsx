@@ -150,7 +150,7 @@ export const Board: FC = () => {
         <BoardHead />
       </div>
 
-      <div className="absolute ml-[-32px] flex h-full w-[32px] flex-col items-center justify-end py-2">
+      <div className="absolute ml-[-32px] flex h-full w-[32px] select-none flex-col items-center justify-end py-2">
         {ordered.map((x) => (
           <div key={x.id} className="flex h-[44px] w-full items-center justify-center">
             <button
@@ -176,7 +176,7 @@ export const Board: FC = () => {
         onWheel={(e) => (e.currentTarget.scrollLeft += e.deltaY > 0 ? 75 : -75)}
         className={clsx(
           "relative box-border flex flex-col border-t py-2",
-          "no-scrollbar overflow-x-scroll",
+          "no-scrollbar select-none overflow-x-scroll",
         )}
       >
         <BoardLine rtRef={rtRef} tlRef={tlRef} />
