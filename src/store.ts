@@ -211,7 +211,10 @@ export const useGetHourCycle = (place: Place): "h12" | "h24" => {
 // General: Theme
 
 type Theme = "light" | "dark"
-export const ThemeStore = atomWithStorage<Theme>("theme", "light", undefined, { getOnInit: true })
+const DefaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+export const ThemeStore = atomWithStorage<Theme>("theme", DefaultTheme, undefined, {
+  getOnInit: true,
+})
 
 // UI
 

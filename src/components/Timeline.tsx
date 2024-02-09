@@ -192,7 +192,6 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
 }
 
 export const Timeline: FC<{ place: Place }> = ({ place }) => {
-  const { delPlace } = useMutateTab()
   const { home } = useAtomValue(ActiveTab)
   const isHome = useIsHome(place)
   const hours = useGetTimeline(place)
