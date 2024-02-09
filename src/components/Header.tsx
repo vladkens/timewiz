@@ -16,7 +16,7 @@ const ChangeTheme: FC = () => {
   const Icon = isDark ? IconSunFilled : IconMoon
 
   return (
-    <button onClick={() => setTheme(isDark ? "light" : "dark")}>
+    <button onClick={() => setTheme(isDark ? "light" : "dark")} aria-label="switch theme">
       <Icon className="h-5 w-5 hover:text-blue-500 dark:hover:text-yellow-500" />
     </button>
   )
@@ -57,7 +57,7 @@ export const Header: FC = () => {
     <header className="flex h-[64px] items-center justify-between">
       <div className="flex items-center gap-5 pl-1.5">
         <a href="/" className="flex items-center gap-2 text-xl font-bold text-primary">
-          <img src="logo.svg" className="h-[24px] w-[24px] rounded" />
+          <img src="logo.svg" alt="logo" className="h-[24px] w-[24px] rounded" />
           TimeWiz.cc
         </a>
 

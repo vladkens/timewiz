@@ -94,6 +94,7 @@ export const Tabs: FC = () => {
 
       <button
         key="add"
+        aria-label="add tab"
         onClick={addTab}
         className={clsx(
           "mx-1 flex h-6 w-6 items-center justify-center rounded-full hover:bg-gray-200",

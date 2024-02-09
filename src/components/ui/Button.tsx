@@ -23,6 +23,7 @@ export const Button: FC<ButtonProps> = (props) => {
 
   return (
     <button
+      aria-label="select date"
       className={clsx(
         "flex items-center gap-1 text-nowrap rounded border",
         sizes[size],
