@@ -1,4 +1,4 @@
-import { IconCoffee, IconMoon, IconSunFilled } from "@tabler/icons-react"
+import { IconMoon, IconSunFilled } from "@tabler/icons-react"
 import clsx from "clsx"
 import { useAtom } from "jotai"
 import { FC, useEffect } from "react"
@@ -73,7 +73,7 @@ export const Header: FC = () => {
           Feedback
         </a>
 
-        <a
+        {/* <a
           href="https://www.buymeacoffee.com/vladkens"
           target="_blank"
           className={clsx(
@@ -89,7 +89,7 @@ export const Header: FC = () => {
             <span className="md:hidden">Buy me a coffee</span>
             <span className="hidden md:block">Donate</span>
           </div>
-        </a>
+        </a> */}
 
         <ChangeTimeView />
         <ChangeTheme />
