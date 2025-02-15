@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[<img src="https://badgen.net/github/license/vladkens/timewiz" alt="license" />](https://github.com/vladkens/timewiz/blob/main/LICENSE)
-[<img src="https://badgen.net/static/open/timewiz.cc/blue" alt="visit" />](https://timewiz.cc)
-[<img src="https://badgen.net/static/-/buy%20me%20a%20coffee/ff813f?icon=buymeacoffee&label" alt="donate" />](https://buymeacoffee.com/vladkens)
+[<img src="https://badges.ws/github/license/vladkens/timewiz" alt="license" />](https://github.com/vladkens/timewiz/blob/main/LICENSE)
+[<img src="https://badges.ws/badge/open/timewiz.cc/blue" alt="visit" />](https://timewiz.cc)
+[<img src="https://badges.ws/badge/-/buy%20me%20a%20coffee/ff813f?icon=buymeacoffee&label" alt="donate" />](https://buymeacoffee.com/vladkens)
 
 </div>
 
