@@ -13,10 +13,11 @@ export const siteConfig = {
   description: `${shortDescription} Share setups and export selected ranges when needed.`,
   shortDescription,
   url: "https://timewiz.cc/",
+  ogImageUrl: "https://timewiz.cc/og.png",
   domain: "timewiz.cc",
   themeColor: "#202020",
   backgroundColor: "#202020",
-  twitterCard: "summary",
+  twitterCard: "summary_large_image",
 } as const
 
 // https://vite.dev/config/
@@ -35,6 +36,7 @@ export default defineConfig({
           .replace(/%SITE_DESCRIPTION%/g, siteConfig.description)
           .replace(/%SITE_SHORT_DESCRIPTION%/g, siteConfig.shortDescription)
           .replace(/%SITE_URL%/g, siteConfig.url)
+          .replace(/%SITE_OG_IMAGE_URL%/g, siteConfig.ogImageUrl)
           .replace(/%SITE_DOMAIN%/g, siteConfig.domain)
           .replace(/%SITE_THEME_COLOR%/g, siteConfig.themeColor)
           .replace(/%SITE_TWITTER_CARD%/g, siteConfig.twitterCard)
