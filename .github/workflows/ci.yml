@@ -19,15 +19,15 @@ jobs:
       - run: pnpm build
 
       - uses: cloudflare/wrangler-action@v3
-        # if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=timewiz
 
-      - uses: peaceiris/actions-gh-pages@v4
-        # if: github.ref == 'refs/heads/dev'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: dist
-          # cname: timewiz.cc
+      # - uses: peaceiris/actions-gh-pages@v4
+      #   if: github.ref == 'refs/heads/develop'
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: dist
+      #     cname: timewiz.cc

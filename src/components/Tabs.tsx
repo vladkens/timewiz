@@ -39,6 +39,8 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
     return () => window.removeEventListener("keydown", handler)
   }, [input])
 
+  const deleteLabel = `Delete tab ${tab.name}`
+
   return (
     <div
       onClick={() => click()}
@@ -67,6 +69,8 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
         <button
           onClick={() => delTab(tab.id)}
           disabled={!canDelete}
+          title={deleteLabel}
+          aria-label={deleteLabel}
           className={clsx(
             "flex h-[17px] w-[17px] items-center justify-center rounded-full font-mono text-[15px]",
             "text-card-content/50 hover:bg-gray-500/30 hover:text-red-500",
@@ -83,6 +87,7 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
 export const Tabs: FC = () => {
   const tabs = useGetTabsList()
   const { addTab } = useMutateTabs()
+  const addTabLabel = "Add a new comparison tab"
 
   return (
     <div className="flex items-center rounded-lg text-sm leading-none">
@@ -94,10 +99,11 @@ export const Tabs: FC = () => {
 
       <button
         key="add"
-        aria-label="add tab"
+        aria-label={addTabLabel}
+        title={addTabLabel}
         onClick={addTab}
         className={clsx(
-          "mx-1 flex h-6 w-6 items-center justify-center rounded-full hover:bg-gray-200",
+          "text-card-content/70 hover:text-card-content hover:bg-rest mx-1 flex h-6 w-6 items-center justify-center rounded-full",
           "transition-colors",
         )}
       >

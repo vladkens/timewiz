@@ -22,7 +22,7 @@ const AppContent: FC = () => {
   return (
     <>
       <Header />
-      <main className="bg-card text-card-content flex flex-col rounded-lg border">
+      <main className="bg-card/92 text-card-content flex flex-col rounded-2xl border border-black/5 shadow-xl backdrop-blur-sm dark:border-white/10 dark:shadow-2xl">
         <Tabs />
         <Board />
       </main>

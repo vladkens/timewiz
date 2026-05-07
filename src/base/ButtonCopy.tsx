@@ -3,9 +3,10 @@ import clsx from "clsx"
 import { FC, useEffect, useState } from "react"
 import { Button, ButtonProps } from "./Button"
 
-export type ButtonCopyProps = Pick<ButtonProps, "className" | "children" | "disabled" | "size"> & {
-  value: string | (() => string)
-}
+export type ButtonCopyProps = Pick<
+  ButtonProps,
+  "className" | "children" | "disabled" | "size" | "title" | "ariaLabel"
+> & { value: string | (() => string) }
 
 export const ButtonCopy: FC<ButtonCopyProps> = (props) => {
   const { value, children, className, ...rest } = props

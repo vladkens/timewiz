@@ -158,11 +158,8 @@ export const Board: FC = () => {
               disabled={x.id === home.id}
               title={`Remove ${makePlaceName(x)}`}
               className={clsx(
-                "h-[24px] w-[24px] rounded-full border border-transparent font-mono leading-none",
-                "text-[20px]",
-                x.id === home.id
-                  ? "hidden"
-                  : "text-body-content/20 hover:border-red-500/30 hover:bg-red-500/20 hover:text-red-500",
+                "h-6 w-6 font-mono text-xl leading-none",
+                x.id === home.id ? "hidden" : "text-body-content/20 hover:text-red-500",
               )}
             >
               &times;

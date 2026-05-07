@@ -9,11 +9,14 @@ export type ButtonProps = {
   size?: "sm" | "md" | "lg"
   leftSection?: React.ReactNode
   rightSection?: React.ReactNode
+  title?: string
+  ariaLabel?: string
 }
 
 export const Button: FC<ButtonProps> = (props) => {
   const { size = "md" } = props
-  const { className, onClick, disabled = false } = props
+  const { className, onClick, disabled = false, title, ariaLabel } = props
+  const accessibleLabel = ariaLabel ?? title
 
   const sizes: Record<Exclude<ButtonProps["size"], undefined>, string> = {
     sm: "px-1.5 py-0.5 text-[13px]",
@@ -23,7 +26,8 @@ export const Button: FC<ButtonProps> = (props) => {
 
   return (
     <button
-      aria-label="select date"
+      aria-label={accessibleLabel}
+      title={title}
       className={clsx(
         "flex items-center gap-1 rounded-sm border text-nowrap",
         sizes[size],

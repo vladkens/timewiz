@@ -133,6 +133,11 @@ const SelectionHead: FC<{ a: string; b: string }> = ({ a, b }) => {
     .map((x) => `${x.value} ${x.label}`)
     .join(" ")
 
+  const googleLabel = "Open Google Calendar with this time range prefilled"
+  const emailLabel = "Create an email draft with this schedule"
+  const copyLabel = "Copy the selected schedule as text"
+  const icalLabel = "Download this time range as an iCalendar file"
+
   return (
     <div className="flex h-full w-full items-center gap-2.5 px-4 py-2">
       <div className="flex w-[212px] items-center justify-end gap-1 text-nowrap">
@@ -144,22 +149,32 @@ const SelectionHead: FC<{ a: string; b: string }> = ({ a, b }) => {
         <Button
           onClick={actions.toGoogleCalendar}
           size="sm"
+          title={googleLabel}
+          ariaLabel={googleLabel}
           leftSection={<IconCalendarEvent className="h-4 w-4" />}
         >
           Google
         </Button>
 
-        <Button onClick={actions.toEmail} size="sm" leftSection={<IconMail className="h-4 w-4" />}>
+        <Button
+          onClick={actions.toEmail}
+          size="sm"
+          title={emailLabel}
+          ariaLabel={emailLabel}
+          leftSection={<IconMail className="h-4 w-4" />}
+        >
           Email
         </Button>
 
-        <ButtonCopy value={actions.toText} size="sm">
+        <ButtonCopy value={actions.toText} size="sm" title={copyLabel} ariaLabel={copyLabel}>
           Copy
         </ButtonCopy>
 
         <Button
           onClick={actions.toIcal}
           size="sm"
+          title={icalLabel}
+          ariaLabel={icalLabel}
           leftSection={<IconCloudDownload className="h-4 w-4" />}
         >
           iCal
