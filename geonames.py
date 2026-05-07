@@ -1,12 +1,17 @@
 import csv
 import io
 import json
+import os
+import subprocess
 import typing
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass, fields
 
 import httpx
+
+MIN_POPULATION = 80_000
+OUTPUT_PATH = "src/utils/geonames.json"
 
 
 @dataclass
@@ -145,8 +150,46 @@ def print_features(cities: list[City]):
         print(f"{k:5} {v:7,d}: {sample}")
 
 
+def get_summary(old_data, new_data):
+    summary = {}
+
+    for key in sorted(new_data):
+        old_value = old_data.get(key, [])
+        new_value = new_data[key]
+
+        if isinstance(new_value, (list, dict)):
+            old_count = len(old_value) if isinstance(old_value, (list, dict)) else 0
+            new_count = len(new_value)
+            summary[key] = {
+                "old": old_count,
+                "new": new_count,
+                "delta": new_count - old_count,
+            }
+
+    return summary
+
+
+def print_summary(summary, old_size, new_size):
+    print("-" * 60)
+    print("summary:")
+
+    for key in sorted(summary):
+        item = summary[key]
+        print(f"{key}: {item['old']} -> {item['new']} ({item['delta']:+d})")
+
+    print(f"file_size: {old_size} -> {new_size} bytes ({new_size - old_size:+d})")
+
+
 def main():
-    MIN_POPULATION = 80_000
+    old_data = {}
+    old_size = 0
+
+    subprocess.run(["git", "checkout", "--", OUTPUT_PATH], check=True)
+
+    if os.path.exists(OUTPUT_PATH):
+        old_size = os.path.getsize(OUTPUT_PATH)
+        with open(OUTPUT_PATH) as fp:
+            old_data = json.load(fp)
 
     cities = get_cities()
     cities = sorted(cities, key=lambda x: x.population, reverse=True)
@@ -190,15 +233,19 @@ def main():
 
     legacy = get_legacy_tzs()
 
-    with open("src/utils/geonames.json", "w") as fp:
-        data = dict(
-            timezones=timezones,
-            countries=countries,
-            cities=places,
-            legacy=legacy,
-        )
+    data = dict(
+        timezones=timezones,
+        countries=countries,
+        cities=places,
+        legacy=legacy,
+    )
+
+    with open(OUTPUT_PATH, "w") as fp:
         # json.dump(data, fp, indent=2, ensure_ascii=False)
         json.dump(data, fp)
+
+    new_size = os.path.getsize(OUTPUT_PATH)
+    print_summary(get_summary(old_data, data), old_size, new_size)
 
 
 if __name__ == "__main__":
