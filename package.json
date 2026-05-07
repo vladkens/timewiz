@@ -3,14 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "bundle-size": "vite-bundle-visualizer",
     "format": "prettier --log-level warn --write .",
-    "lint": "tsc --noEmit && prettier --check .",
-    "ci": "yarn lint && yarn build"
+    "lint": "tsc --noEmit && prettier --check ."
   },
   "dependencies": {
     "@tabler/icons-react": "3.19.0",

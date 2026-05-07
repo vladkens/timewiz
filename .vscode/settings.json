@@ -1,12 +1,11 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "search.exclude": {
-    "yarn.lock": true,
+  "files.exclude": {
+    "dist": true,
+    "node_modules": true,
+    "pnpm-lock.yaml": true,
     "src/utils/geonames.json": true
   },
-  "files.exclude": {
-    "bundlemeta.json": true,
-    "dist": true
-  }
+  "prettier.requireConfig": false
 }

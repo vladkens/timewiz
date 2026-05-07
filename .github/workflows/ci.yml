@@ -2,8 +2,6 @@ name: ci
 
 on:
   push:
-    branches:
-      - main
 
 permissions:
   contents: write
@@ -13,15 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "yarn"
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn ci
-      - run: yarn build
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
 
       - uses: cloudflare/pages-action@v1
         if: github.ref == 'refs/heads/main'
