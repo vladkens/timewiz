@@ -58,6 +58,4 @@ pnpm build
 
 ## Feedback
 
-If you want a feature, found a bug, or have an idea to improve the scheduling flow, open an issue:
-
-https://github.com/vladkens/timewiz/issues/new
+If you want a feature, found a bug, or have an idea to improve the scheduling flow, open an issue: https://github.com/vladkens/timewiz/issues/new

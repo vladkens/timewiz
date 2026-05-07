@@ -10,7 +10,7 @@ import { Timeline } from "./Timeline"
 
 export const Board: FC = () => {
   const { places: rawPlaces, home } = useAtomValue(ActiveTab)
-  const [ordered, setOrdered] = useState<Place[]>([])
+  const [ordered, setOrdered] = useState<Place[]>(() => rawPlaces)
   const { reorderPlaces, delPlace } = useMutateTab()
   const setTlSelected = useSetAtom(TlSelected)
 

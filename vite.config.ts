@@ -2,7 +2,22 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
-import { siteConfig } from "./site.config"
+
+const shortDescription =
+  "Compare cities, spot timezone overlap, and pick a sensible time window with a visual timezone board."
+
+export const siteConfig = {
+  name: "TimeWiz.cc",
+  shortName: "TimeWiz",
+  title: "TimeWiz.cc - Visual Timezone Board",
+  description: `${shortDescription} Share setups and export selected ranges when needed.`,
+  shortDescription,
+  url: "https://timewiz.cc/",
+  domain: "timewiz.cc",
+  themeColor: "#202020",
+  backgroundColor: "#202020",
+  twitterCard: "summary",
+} as const
 
 // https://vite.dev/config/
 export default defineConfig({

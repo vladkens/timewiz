@@ -113,7 +113,7 @@ export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {
         ref={cRef}
         className={clsx(
           cls,
-          "z-[15] w-[32px] rounded-md border-2 border-red-500/50 dark:border-red-500/80",
+          "z-[15] w-[32px] rounded-md border-2 border-red-500/50 opacity-0 dark:border-red-500/80",
         )}
       />
       <div ref={rRef} className={sideCls} />
