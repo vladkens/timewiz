@@ -1,0 +1,6 @@
+settings:
+  savePrefix: ""
+
+allowBuilds:
+  "@swc/core": true
+  esbuild: true

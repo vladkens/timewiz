@@ -18,17 +18,16 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
 
-      - uses: cloudflare/pages-action@v1
-        if: github.ref == 'refs/heads/main'
+      - uses: cloudflare/wrangler-action@v3
+        # if: github.ref == 'refs/heads/main'
         with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          projectName: timewiz
-          directory: dist
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=timewiz
 
-      # - uses: peaceiris/actions-gh-pages@v3
-      #   if: github.ref == 'refs/heads/main'
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: dist
-      #     cname: timewiz.cc
+      - uses: peaceiris/actions-gh-pages@v4
+        # if: github.ref == 'refs/heads/dev'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          # cname: timewiz.cc
