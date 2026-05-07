@@ -1,8 +1,8 @@
-import react from "@vitejs/plugin-react-swc"
+import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { VitePWA } from "vite-plugin-pwa"
 
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 export default defineConfig({
   base: "/",
   build: { sourcemap: "hidden" },
@@ -17,5 +17,4 @@ export default defineConfig({
       },
     }),
   ],
-  esbuild: { legalComments: "none" },
 })
