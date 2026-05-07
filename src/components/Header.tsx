@@ -1,26 +1,7 @@
-import { IconMoon, IconSunFilled } from "@tabler/icons-react"
 import clsx from "clsx"
 import { useAtom } from "jotai"
-import { FC, useEffect } from "react"
-import { ClockMode, ThemeStore } from "../store"
-
-const ChangeTheme: FC = () => {
-  const [theme, setTheme] = useAtom(ThemeStore)
-  const isDark = theme === "dark"
-
-  useEffect(() => {
-    if (isDark) document.body.classList.add("dark")
-    else document.body.classList.remove("dark")
-  }, [isDark])
-
-  const Icon = isDark ? IconSunFilled : IconMoon
-
-  return (
-    <button onClick={() => setTheme(isDark ? "light" : "dark")} aria-label="switch theme">
-      <Icon className="h-5 w-5 hover:text-blue-500 dark:hover:text-yellow-500" />
-    </button>
-  )
-}
+import { FC } from "react"
+import { ClockMode } from "../store"
 
 const ChangeTimeView: FC = () => {
   const [value, setValue] = useAtom(ClockMode)
@@ -92,7 +73,6 @@ export const Header: FC = () => {
         </a> */}
 
         <ChangeTimeView />
-        <ChangeTheme />
       </div>
     </header>
   )

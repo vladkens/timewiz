@@ -208,14 +208,6 @@ export const useGetHourCycle = (place: Place): "h12" | "h24" => {
   return place.hourCycle // default for given place (mode=MX)
 }
 
-// General: Theme
-
-type Theme = "light" | "dark"
-const DefaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-export const ThemeStore = atomWithStorage<Theme>("theme", DefaultTheme, undefined, {
-  getOnInit: true,
-})
-
 // UI
 
 export const TlSelected = atom<[string, string] | null>(null)

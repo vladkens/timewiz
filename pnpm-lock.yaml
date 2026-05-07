@@ -35,9 +35,6 @@ importers:
       react-dom:
         specifier: 19.2.6
         version: 19.2.6(react@19.2.6)
-      wouter:
-        specifier: 3.9.0
-        version: 3.9.0(react@19.2.6)
     devDependencies:
       '@tailwindcss/vite':
         specifier: 4.2.4
@@ -2223,11 +2220,6 @@ packages:
 
   workbox-window@7.4.1:
     resolution: {integrity: sha512-notZDH2u8VXaqyuD7xaqIfEFi6SRM4SUSd7ewe9PDsVqADuepxX2ZMY3uvuZGxzY5ZOsGC/vD3A/3smFtJt4/A==}
-
-  wouter@3.9.0:
-    resolution: {integrity: sha512-sF/od/PIgqEQBQcrN7a2x3MX6MQE6nW0ygCfy9hQuUkuB28wEZuu/6M5GyqkrrEu9M6jxdkgE12yDFsQMKos4Q==}
-    peerDependencies:
-      react: '>=16.8.0'
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -4490,13 +4482,6 @@ snapshots:
     dependencies:
       '@types/trusted-types': 2.0.7
       workbox-core: 7.4.1
-
-  wouter@3.9.0(react@19.2.6):
-    dependencies:
-      mitt: 3.0.1
-      react: 19.2.6
-      regexparam: 3.0.0
-      use-sync-external-store: 1.6.0(react@19.2.6)
 
   yallist@3.1.1: {}
 
