@@ -22,7 +22,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
   }, [mode])
 
   return (
-    <div className="rounded border bg-body/50 px-1 py-0.5 font-mono text-[11px]">
+    <div className="bg-body/50 rounded-sm border px-1 py-0.5 font-mono text-[11px]">
       {mode === "h12" ? time.hour % 12 || 12 : pad(time.hour)}:{pad(time.minute)}
       {mode === "h12" && (
         <span className="ml-1 text-[12px] tracking-normal">{time.hour < 12 ? "AM" : "PM"}</span>
@@ -93,13 +93,13 @@ export const SelectPlace: FC = () => {
         value={value}
         onChange={(e) => setValue(e.target?.value ?? "")}
         className={clsx(
-          "h-[28px] w-full rounded border bg-card px-1.5 text-card-content",
-          "focus:border-blue-500 focus:outline-none focus:ring-1",
+          "bg-card text-card-content h-[28px] w-full rounded-sm border px-1.5",
+          "focus:border-blue-500 focus:ring-1 focus:outline-hidden",
           "border-card-content/30 placeholder:text-sm",
         )}
       />
       {options.length > 0 && (
-        <div className="absolute z-[100] mt-0.5 w-[320px] rounded-md border bg-card">
+        <div className="bg-card absolute z-[100] mt-0.5 w-[320px] rounded-md border">
           {options.map((x, idx) => (
             <button
               key={x.id}

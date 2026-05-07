@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import { useAtomValue } from "jotai"
 import { DateTime } from "luxon"
-import { FC, useEffect, useMemo, useReducer } from "react"
+import { FC, ReactNode, useEffect, useMemo, useReducer } from "react"
 import { ActiveTab, ActualDate, useGetHourCycle, useIsHome, useMutateTab } from "../store"
 import { Place } from "../utils/geonames"
 import { makePlaceName } from "../utils/misc"
@@ -64,8 +64,16 @@ const useGetTimeline = (place: Place) => {
   const ss = DateTime.fromISO(date, { zone: home.zone }).setZone(place.zone)
   const dd = DateTime.now().setZone(place.zone)
 
+  const items: {
+    label: ReactNode
+    isDayStart: boolean
+    isDayEnd: boolean
+    isCurrent: boolean
+    isDSTChange: boolean | null
+    datetime: string | null
+    className: string
+  }[] = []
   let prevTT: DateTime | null = null
-  const items = []
   for (let i = 0; i < 24; ++i) {
     const tt = ss.plus({ hours: i })
     const hh = tt.hour
@@ -76,7 +84,7 @@ const useGetTimeline = (place: Place) => {
     const isV = !isR && !isG && !isY
 
     items.push({
-      label: DayLabel({ date: tt, mode }),
+      label: <DayLabel date={tt} mode={mode} />,
       isDayStart: hh === 0,
       isDayEnd: hh === 23,
       isCurrent: hh === dd.hour && tt.day === dd.day,
@@ -114,7 +122,7 @@ const PlaceOffset: FC<{ homeTz: string; leftTz: string }> = ({ homeTz, leftTz })
   return (
     <div
       className={clsx(
-        "flex items-center gap-1 text-card-content/50",
+        "text-card-content/50 flex items-center gap-1",
         "text-[11px] leading-none tracking-tighter",
       )}
     >
@@ -132,7 +140,7 @@ const PlaceOffset: FC<{ homeTz: string; leftTz: string }> = ({ homeTz, leftTz })
           <span>·</span>
           <span
             className={clsx(
-              "text-nowrap rounded-lg border bg-rest/50 px-1 py-0.5",
+              "bg-rest/50 rounded-lg border px-1 py-0.5 text-nowrap",
               dt > 0 ? "text-green-500" : "text-red-500",
             )}
           >
@@ -172,7 +180,7 @@ const Clock: FC<{ place: Place }> = ({ place }) => {
       disabled={isHome}
       className={clsx(
         "grow rounded-md border border-transparent px-1.5 py-1 text-right font-mono",
-        "whitespace-nowrap tracking-tighter",
+        "tracking-tighter whitespace-nowrap",
         !isHome
           ? "text-black dark:text-white"
           : clsx(
@@ -203,11 +211,11 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
   return (
     <div
       data-drag-root
-      className="group relative flex grow items-center justify-between gap-2.5 px-4 even:bg-body/50"
+      className="group even:bg-body/50 relative flex grow items-center justify-between gap-2.5 px-4"
     >
       <div className="flex min-w-[212px] shrink-0 grow items-center gap-2 text-sm leading-none">
         <div className="flex grow flex-col gap-1" data-drag-node>
-          <div className="max-w-[134px] truncate text-ellipsis text-nowrap text-[13px]">
+          <div className="max-w-[134px] truncate text-[13px] text-nowrap text-ellipsis">
             {makePlaceName(place)}
           </div>
 
@@ -219,7 +227,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
         </div>
       </div>
 
-      <div className="flex h-[44px] select-none items-center" data-tl-home={isHome}>
+      <div className="flex h-[44px] items-center select-none" data-tl-home={isHome}>
         {hours.map((x, idx) => (
           <div
             key={idx}
@@ -231,7 +239,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
             <div
               className={clsx(
                 "flex h-[32px] w-full items-center justify-center dark:text-white/85",
-                "border-b border-t border-gray-300",
+                "border-t border-b border-gray-300",
                 "leadning-none relative text-center",
                 x.isDayStart && "rounded-l-md border-l",
                 x.isDayEnd && "rounded-r-md border-r",
@@ -241,7 +249,7 @@ export const Timeline: FC<{ place: Place }> = ({ place }) => {
               )}
             >
               {x.isDSTChange && (
-                <div className="absolute right-[3px] top-[3px] h-[5px] w-[5px] rounded-full bg-yellow-500" />
+                <div className="absolute top-[3px] right-[3px] h-[5px] w-[5px] rounded-full bg-yellow-500" />
               )}
               {x.label}
             </div>

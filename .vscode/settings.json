@@ -5,7 +5,8 @@
     "dist": true,
     "node_modules": true,
     "pnpm-lock.yaml": true,
-    "src/utils/geonames.json": true
+    "src/utils/geonames.json": true,
+    ".pnpm-store": true
   },
   "prettier.requireConfig": false
 }

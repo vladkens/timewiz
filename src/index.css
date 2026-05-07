@@ -1,6 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-body: var(--body);
+  --color-body-content: var(--body-content);
+  --color-card: var(--card);
+  --color-card-content: var(--card-content);
+  --color-rest: var(--rest);
+  --color-rest-content: var(--rest-content);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+}
 
 /* 
 - https://ui.shadcn.com/themes
@@ -10,29 +20,29 @@
 - https://github.com/kiliman/shadcn-custom-theme
 */
 
-@layer base {
+@layer theme {
   :root {
-    --body: theme(colors.zinc.100);
-    --body-content: theme(colors.zinc.900);
-    --card: theme(colors.white);
-    --card-content: theme(colors.zinc.900);
-    --rest: theme(colors.neutral.100);
-    --rest-content: theme(colors.neutral.500);
+    --body: var(--color-zinc-100);
+    --body-content: var(--color-zinc-900);
+    --card: var(--color-white);
+    --card-content: var(--color-zinc-900);
+    --rest: var(--color-neutral-100);
+    --rest-content: var(--color-neutral-500);
 
-    --border: theme(colors.zinc.200);
-    --primary: theme(colors.orange.500);
+    --border: var(--color-zinc-200);
+    --primary: var(--color-orange-500);
   }
 
   .dark {
-    --body: theme(colors.stone.950);
-    --body-content: theme(colors.stone.300);
-    --card: theme(colors.stone.800);
-    --card-content: theme(colors.stone.300);
-    --rest: theme(colors.neutral.700);
-    --rest-content: theme(colors.neutral.500);
+    --body: var(--color-stone-950);
+    --body-content: var(--color-stone-300);
+    --card: var(--color-stone-800);
+    --card-content: var(--color-stone-300);
+    --rest: var(--color-neutral-700);
+    --rest-content: var(--color-neutral-500);
 
-    --border: theme(colors.stone.800);
-    --primary: theme(colors.orange.500);
+    --border: var(--color-stone-800);
+    --primary: var(--color-orange-500);
 
     --body: #1f2020;
     --card: #2b2b2b;
@@ -45,8 +55,13 @@
     @apply border-border;
   }
 
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
   body {
-    @apply overflow-hidden !bg-body text-body-content;
+    @apply !bg-body text-body-content overflow-hidden;
   }
 
   [data-drag-node] {
@@ -58,17 +73,14 @@
   }
 }
 
-@layer utilities {
-  /* https://github.com/reslear/tailwind-scrollbar-hide/blob/main/src/index.js */
+/* https://github.com/reslear/tailwind-scrollbar-hide/blob/main/src/index.js */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .animate-tick {

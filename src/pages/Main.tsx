@@ -18,7 +18,7 @@ export const MainPage: FC = () => {
   }, [])
 
   return (
-    <main className="flex flex-col rounded-lg border bg-card text-card-content">
+    <main className="bg-card text-card-content flex flex-col rounded-lg border">
       <Tabs />
       <Board />
     </main>

@@ -9,7 +9,7 @@ export type ButtonIconProps = Pick<ButtonProps, "className" | "disabled" | "size
 export const ButtonIcon: FC<ButtonIconProps> = ({ icon, className, ...props }) => {
   return (
     <Button
-      className={clsx(className, "h-[25px] w-[25px] hover:border-primary hover:text-primary")}
+      className={clsx(className, "hover:border-primary hover:text-primary h-[25px] w-[25px]")}
       {...props}
     >
       {icon}

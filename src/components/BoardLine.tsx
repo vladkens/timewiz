@@ -9,8 +9,8 @@ const getIdx = (idx: string) => document.querySelector(`[data-tl-home=true] [dat
 const getNow = () => document.querySelector("[data-tl-home=true] [data-tl-now=true]") as HTMLElement
 
 type BoardLineProps = {
-  rtRef: React.RefObject<HTMLDivElement>
-  tlRef: React.RefObject<HTMLDivElement>
+  rtRef: React.RefObject<HTMLDivElement | null>
+  tlRef: React.RefObject<HTMLDivElement | null>
 }
 
 export const BoardLine: FC<BoardLineProps> = ({ rtRef, tlRef }) => {

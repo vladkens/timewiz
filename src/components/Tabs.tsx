@@ -43,10 +43,10 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
     <div
       onClick={() => click()}
       className={clsx(
-        "flex h-[32px] select-none items-center justify-between gap-1.5 border-t-2 border-transparent",
-        canDelete ? "pl-4 pr-1" : "px-4",
+        "flex h-[32px] items-center justify-between gap-1.5 border-t-2 border-transparent select-none",
+        canDelete ? "pr-1 pl-4" : "px-4",
         !tab.isActive && "cursor-pointer",
-        tab.isActive && "border-blue-500 bg-body/50",
+        tab.isActive && "bg-body/50 border-blue-500",
       )}
     >
       <div className="min-w-[48px] grow">
@@ -56,7 +56,7 @@ const Tab: FC<{ tab: TabDto; canDelete: boolean }> = ({ tab, canDelete }) => {
             autoFocus
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="max-w-[100px] bg-card text-body-content outline-none"
+            className="bg-card text-body-content max-w-[100px] outline-hidden"
           />
         ) : (
           <div className={clsx(tab.isActive && "cursor-text")}>{tab.name}</div>

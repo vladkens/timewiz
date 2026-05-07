@@ -20,7 +20,7 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
   }, [ct])
 
   const baseCls = clsx(
-    "flex h-[28px] w-[28px] items-center justify-center leading-none rounded text-xs",
+    "flex h-[28px] w-[28px] items-center justify-center leading-none rounded-sm text-xs",
     "border border-transparent",
   )
 
@@ -30,8 +30,8 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
   ]
 
   return (
-    <div className="flex select-none flex-col">
-      <div className="flex items-center text-sm text-card-content/80">
+    <div className="flex flex-col select-none">
+      <div className="text-card-content/80 flex items-center text-sm">
         <div className="flex grow items-center justify-center">
           <button onClick={() => setCt(currentMonth())}>
             {ct.monthLong} {ct.year}
@@ -41,7 +41,7 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
         {buttons.map((x, i) => (
           <button
             key={i}
-            className={clsx(baseCls, "cursor-pointer hover:bg-rest")}
+            className={clsx(baseCls, "hover:bg-rest cursor-pointer")}
             onClick={x.onClick}
           >
             <x.icon size={20} />
@@ -74,8 +74,8 @@ export const DatePicker: FC<DatePickerProps> = ({ value, onChange }) => {
                 onClick={() => onChange(ss.toISODate())}
                 className={clsx(
                   baseCls,
-                  "cursor-pointer hover:bg-rest",
-                  isActive && "bg-primary font-medium text-body-content hover:bg-primary",
+                  "hover:bg-rest cursor-pointer",
+                  isActive && "bg-primary text-body-content hover:bg-primary font-medium",
                   isToday && "border-yellow-400/40 bg-yellow-400/20",
                   isOtherMonth && "text-rest-content",
                   isWeekend && "text-red-500",

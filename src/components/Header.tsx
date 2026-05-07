@@ -32,7 +32,7 @@ const ChangeTimeView: FC = () => {
   ]
 
   return (
-    <div className="flex items-center rounded border border-black leading-none dark:border-white">
+    <div className="flex items-center rounded-sm border border-black leading-none dark:border-white">
       {buttons.map((x) => (
         <button
           key={x.value}
@@ -56,8 +56,8 @@ export const Header: FC = () => {
   return (
     <header className="flex h-[64px] items-center justify-between">
       <div className="flex items-center gap-5 pl-1.5">
-        <a href="/" className="flex items-center gap-2 text-xl font-bold text-primary">
-          <img src="logo.svg" alt="logo" className="h-[24px] w-[24px] rounded" />
+        <a href="/" className="text-primary flex items-center gap-2 text-xl font-bold">
+          <img src="logo.svg" alt="logo" className="h-[24px] w-[24px] rounded-sm" />
           TimeWiz.cc
         </a>
 
@@ -68,7 +68,7 @@ export const Header: FC = () => {
         <a
           href="https://github.com/vladkens/timewiz/issues/new"
           target="_blank"
-          className="text-sm hover:underline md:hidden"
+          className="text-sm hover:underline max-md:hidden"
         >
           Feedback
         </a>
@@ -80,14 +80,14 @@ export const Header: FC = () => {
             "-skew-x-[14deg] rounded-md px-1.5 py-1 text-black",
             "font-mono text-[13px] font-medium leading-none tracking-[-0.075em]",
             "border border-transparent bg-[#ffdd02]",
-            "hover:border-white/50 hover:shadow dark:shadow-yellow-400/50",
+            "hover:border-white/50 hover:shadow-sm dark:shadow-yellow-400/50",
             // "uppercase",
           )}
         >
           <div className="flex skew-x-[14deg] items-center gap-1">
             <IconCoffee size={15} />
-            <span className="md:hidden">Buy me a coffee</span>
-            <span className="hidden md:block">Donate</span>
+            <span className="max-md:hidden">Buy me a coffee</span>
+            <span className="hidden max-md:block">Donate</span>
           </div>
         </a> */}
 

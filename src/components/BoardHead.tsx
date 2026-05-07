@@ -84,13 +84,13 @@ const DefaultHead: FC = () => {
         />
 
         {calActive && (
-          <div className="absolute z-[100] mt-1 -translate-x-1/2 rounded border bg-card p-1">
+          <div className="bg-card absolute z-[100] mt-1 -translate-x-1/2 rounded-sm border p-1">
             <DatePicker value={actualDate} onChange={onDateChange} />
           </div>
         )}
       </div>
 
-      <div className="flex grow items-center gap-1 md:hidden">
+      <div className="flex grow items-center gap-1 max-md:hidden">
         {dates.map((x) => (
           <Button
             key={x.date}
