@@ -1,5 +1,6 @@
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+savePrefix: ""
+
 allowBuilds:
   "@tailwindcss/oxide": true
-
-settings:
-  savePrefix: ""
